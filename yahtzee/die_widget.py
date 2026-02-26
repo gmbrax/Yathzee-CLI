@@ -1,4 +1,5 @@
 from textual.app import ComposeResult
+from textual.message import Message
 from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import Label, Static
@@ -25,6 +26,15 @@ class DieWidget(Widget):
     - Held + focused: double accent border + 'HELD' label
     """
 
+    class ToggleHoldRequest(Message):
+        """Posted when the player presses Space to toggle hold on this die."""
+
+        def __init__(self, index: int) -> None:
+            super().__init__()
+            self.index = index
+
+    BINDINGS = [("space", "toggle_hold", "Hold/Release")]
+
     can_focus = True
 
     value: reactive[int] = reactive(0)
@@ -44,3 +54,6 @@ class DieWidget(Widget):
     def watch_held(self, held: bool) -> None:
         self.query_one(f"#held-{self.die_index}", Label).update("HELD" if held else "")
         self.set_class(held, "held")
+
+    def action_toggle_hold(self) -> None:
+        self.post_message(self.ToggleHoldRequest(self.die_index))
