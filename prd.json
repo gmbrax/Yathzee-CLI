@@ -1,0 +1,232 @@
+{
+  "project": "Yahtzee",
+  "branchName": "ralph/yahtzee-tui",
+  "description": "Single-player Yahtzee TUI built with Python Textual — ASCII-art dice, keyboard-only navigation, all 13 official scoring categories, live score preview, dark terminal theme.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Implement scoring logic as a pure-function module",
+      "description": "As a developer, I want all 13 Yahtzee scoring rules implemented as pure functions so that scoring is correct, independently testable, and has no Textual dependency.",
+      "acceptanceCriteria": [
+        "Create a module (e.g. scoring.py) with one function per category: ones, twos, threes, fours, fives, sixes, three_of_a_kind, four_of_a_kind, full_house, small_straight, large_straight, yahtzee, chance",
+        "Each function accepts a list of 5 integers (die values 1–6) and returns an integer score",
+        "Ones–Sixes: return sum of dice matching that face value",
+        "Three of a Kind: return sum of all 5 dice if any value appears ≥3 times, else 0",
+        "Four of a Kind: return sum of all 5 dice if any value appears ≥4 times, else 0",
+        "Full House: return 25 if dice contain exactly three of one value and two of another, else 0",
+        "Small Straight: return 30 if dice contain any 4 sequential values (1-2-3-4, 2-3-4-5, or 3-4-5-6), else 0",
+        "Large Straight: return 40 if dice are exactly 1-2-3-4-5 or 2-3-4-5-6, else 0",
+        "Yahtzee: return 50 if all 5 dice show the same value, else 0",
+        "Chance: return sum of all 5 dice, always",
+        "Unit tests cover all 13 functions, including edge cases (e.g. empty straights, boundary counts)",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Implement game state model",
+      "description": "As a developer, I want a game state class or dataclass that tracks all mutable game data so that the Textual UI can read and mutate state without mixing logic into widgets.",
+      "acceptanceCriteria": [
+        "Create a GameState class (e.g. in game.py) with attributes: dice (list of 5 ints, default 0 = unrolled), held (list of 5 bools), roll_count (int 0–3), scores (dict mapping category name to int or None), game_over (bool)",
+        "Provide a roll() method that randomizes unheld dice and increments roll_count; raises or no-ops if roll_count >= 3",
+        "Provide a toggle_hold(index) method that flips held[index]; only callable when roll_count >= 1",
+        "Provide a commit(category) method that stores the current score for the given category and resets dice, held, and roll_count for the next turn; raises if category already committed or roll_count == 0",
+        "Provide a reset() method that returns all state to initial values",
+        "Provide an upper_subtotal property returning the sum of committed Ones–Sixes scores",
+        "Provide a bonus property returning 35 if upper_subtotal >= 63, else 0",
+        "Provide a grand_total property returning sum of all committed scores plus bonus",
+        "Provide a is_game_over property returning True when all 13 categories are committed",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Scaffold the Textual app with two-panel layout and dark theme",
+      "description": "As a developer, I want the Textual App class and TCSS stylesheet in place with a two-panel layout (dice panel left, scorecard panel right) and a dark color theme so that all subsequent widgets have a home.",
+      "acceptanceCriteria": [
+        "Create main app entry point (e.g. main.py or yahtzee/app.py) subclassing textual.app.App",
+        "Layout is a two-column horizontal split: left panel for dice area, right panel for scorecard",
+        "A header bar shows the game title 'YAHTZEE' and the roll counter placeholder",
+        "A TCSS file (app.tcss) controls all colors; no inline styles in Python code",
+        "Background is dark (e.g. #1a1a2e or similar dark terminal color); all text is light-on-dark",
+        "No mouse bindings are registered anywhere (ALLOW_IN_MAXIMIZED_VIEW or on_mouse_* handlers must not exist)",
+        "Running the app with 'python -m yahtzee' (or equivalent) opens the TUI without errors",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Render five dice as ASCII art widgets",
+      "description": "As a player, I want to see five dice drawn in ASCII art so that the game feels tactile and readable in the terminal.",
+      "acceptanceCriteria": [
+        "Create a DieWidget custom Textual widget that renders one die as a 5-row ASCII box with pip characters",
+        "Pip layouts match standard die conventions: 1=center, 2=top-right/bottom-left, 3=diagonal+center, 4=corners, 5=corners+center, 6=two columns of three",
+        "Five DieWidget instances are displayed in a horizontal row in the left panel",
+        "An unheld, unfocused die uses a plain dim border",
+        "A held die shows a distinct border style (e.g. double or bright) and a 'HELD' label below the box",
+        "The focused die shows an accent-colored highlighted border",
+        "A die that is both held and focused shows both indicators simultaneously",
+        "Dice with value 0 (unrolled state) display an empty or blank face",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Implement roll action and hold/release toggle",
+      "description": "As a player, I want to roll the dice and hold specific ones so that I can pursue scoring combinations across up to three rolls per turn.",
+      "acceptanceCriteria": [
+        "Pressing 'r' (or 'R') anywhere in the app calls GameState.roll() and refreshes all five DieWidget displays",
+        "On the first roll, all five dice receive new random values (1–6)",
+        "On the 2nd and 3rd roll, only unheld dice are re-randomized; held dice keep their values",
+        "The roll counter in the header updates to 'Roll 1/3', 'Roll 2/3', 'Roll 3/3' after each roll",
+        "After 3 rolls, pressing 'r' has no effect",
+        "Pressing Space while a DieWidget is focused calls GameState.toggle_hold(index) and refreshes that die's display",
+        "Holding is only actionable when roll_count >= 1 (Space has no effect before the first roll)",
+        "All dice start each turn (after a commit or reset) as unheld",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Keyboard navigation between the five dice",
+      "description": "As a player, I want to navigate between the five dice with Left/Right arrow keys and switch to the scorecard with Tab so that I never need a mouse.",
+      "acceptanceCriteria": [
+        "Left/Right arrow keys move focus between the five DieWidget instances when the dice panel is active",
+        "Focus wraps: pressing Right on die 5 moves focus to die 1, pressing Left on die 1 moves focus to die 5",
+        "The newly focused die is visually highlighted (accent border)",
+        "Pressing Tab while any die is focused moves focus to the scorecard panel",
+        "No mouse event handlers are used for focus management",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Display the scorecard with all 13 categories and totals",
+      "description": "As a player, I want to see all 13 scoring categories in a scorecard panel with upper/lower sections and running totals so that I know what I can score and what I have already committed.",
+      "acceptanceCriteria": [
+        "The right panel shows a ScorecardWidget listing all 13 categories in two labelled sections: UPPER SECTION (Ones, Twos, Threes, Fours, Fives, Sixes) and LOWER SECTION (Three of a Kind, Four of a Kind, Full House, Small Straight, Large Straight, Yahtzee, Chance)",
+        "Each row shows: category name, and a score column (blank if uncommitted, committed value if committed)",
+        "Between sections: a subtotal row showing the current upper section sum (e.g. 'Subtotal: 9 / 63'), a bonus row ('+35 BONUS' or '—'), and a 'Need X more for bonus' hint while upper section is incomplete",
+        "A TOTAL row at the bottom shows the current grand total",
+        "Committed categories are visually dimmed or styled differently from available ones",
+        "Scorecard reads from GameState (scores, upper_subtotal, bonus, grand_total properties)",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Show live score preview for available categories after each roll",
+      "description": "As a player, I want to see what each available category would score with my current dice after every roll, so that I can make informed decisions before committing.",
+      "acceptanceCriteria": [
+        "After every roll, the ScorecardWidget calls the relevant scoring function for each uncommitted category and displays the result as a preview score in a muted/italic style",
+        "Preview scores are visually distinct from committed scores (e.g. different color, enclosed in brackets, or italicised)",
+        "A category that would score 0 shows '0' as the preview, not blank",
+        "Preview scores update automatically on every roll without manual refresh",
+        "Before the first roll of a turn (roll_count == 0), no preview is shown for any category",
+        "Once a category is committed, its preview disappears and the committed value is shown permanently",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Keyboard navigation within the scorecard",
+      "description": "As a player, I want to navigate scoring categories with Up/Down arrow keys and return to the dice area with Tab so that I can select a category to commit without using a mouse.",
+      "acceptanceCriteria": [
+        "Up/Down arrow keys move focus between available (uncommitted) category rows in the ScorecardWidget when the scorecard panel is active",
+        "Already-committed categories are skipped — focus never lands on them",
+        "The focused category row is clearly highlighted (e.g. inverted colors or accent background)",
+        "Pressing Tab while the scorecard is active moves focus back to the dice panel (landing on the last or first focused die)",
+        "No mouse event handlers are used for scorecard navigation",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Commit a score to a category and end the turn",
+      "description": "As a player, I want to press Enter on a focused scorecard category to commit my dice score and end the turn so that my progress is recorded and the next turn begins.",
+      "acceptanceCriteria": [
+        "Pressing Enter while a scorecard category is focused calls GameState.commit(category) with the current dice",
+        "Committing is only possible after at least one roll (roll_count >= 1); Enter has no effect otherwise",
+        "After committing, the turn resets: all dice show blank faces, all held states clear, roll_count resets to 0",
+        "The committed score is permanently displayed in the scorecard row and the category is marked as used (dimmed)",
+        "The scorecard subtotal, bonus, grand total, and 'needed for bonus' indicator all update immediately after commit",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Detect end of game and show final score screen",
+      "description": "As a player, I want the game to end and display my final score after all 13 categories are committed so that I know my result and can choose to play again.",
+      "acceptanceCriteria": [
+        "After each commit, GameState.is_game_over is checked",
+        "When all 13 categories are committed, an end-game overlay or screen is shown on top of the TUI",
+        "The end-game screen displays the final grand total (sum of all 13 committed scores plus bonus if earned)",
+        "The end-game screen shows whether the upper section bonus was earned",
+        "The end-game screen prompts: 'Press N to play again'",
+        "While the end-game screen is visible, the dice area, roll shortcut (R), and commit action (Enter on scorecard) are all disabled",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Start a new game with the N key",
+      "description": "As a player, I want to press N to start a new game so that I can play again without restarting the application.",
+      "acceptanceCriteria": [
+        "Pressing 'n' (or 'N') at any time calls GameState.reset() and refreshes the entire UI",
+        "After reset: all 13 scorecard categories are blank, all dice show blank faces, roll counter shows 'Roll 0/3', focus returns to the first die",
+        "If N is pressed mid-game (at least one category already committed and game is not over), a confirmation dialog is shown: 'Start a new game? (Y to confirm, any other key to cancel)'",
+        "If the player confirms (presses Y), the game resets; any other key dismisses the dialog without resetting",
+        "If N is pressed from the end-game screen, no confirmation is needed — the game resets immediately",
+        "If N is pressed before any category is committed, no confirmation is needed",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
