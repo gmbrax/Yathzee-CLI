@@ -1,3 +1,18 @@
+## 2026-02-26 - US-008
+- Updated `yahtzee/scorecard_widget.py`:
+  - Added `import scoring` and `SCORING_FUNCTIONS = {key: getattr(scoring, key) for key, _ in ALL_CATEGORIES}` for compact mapping
+  - Updated `CategoryRow.update_score()` to also `score_widget.remove_class("preview")` — ensures committed rows never show preview styling
+  - Added `CategoryRow.update_preview(score: int | None)`: sets text + adds `.preview` class when score given; clears text + removes `.preview` class when None
+  - Updated `ScorecardWidget.refresh_scores()`: for each category, calls `update_score()` if committed, `update_preview(fn(dice))` if roll_count >= 1, or `update_preview(None)` if roll_count == 0
+- Updated `yahtzee/app.tcss`: added `.preview { color: #6e7681; text-style: italic; }` for muted italic preview styling
+- Files changed: `yahtzee/scorecard_widget.py`, `yahtzee/app.tcss`, `prd.json` (US-008 passes: true)
+- **Learnings for future iterations:**
+  - `getattr(scoring, key)` works cleanly since scoring.py function names exactly match ALL_CATEGORIES keys — no manual dict needed
+  - Add/remove CSS classes on inner Static children (not the CategoryRow itself) to style specific columns independently
+  - `.preview` must be removed in `update_score()` to prevent committed rows from retaining preview styling after commit
+  - `refresh_scores(game)` has access to `game.dice` and `game.roll_count` directly — no signature change needed to add preview support
+---
+
 ## 2026-02-26 - US-007
 - Created `yahtzee/scorecard_widget.py` with:
   - `CategoryRow(Widget)`: `can_focus=True`, horizontal layout with `.row-label` (1fr) and `.row-score` (width 4); `update_score()` sets text and toggles `.committed` class

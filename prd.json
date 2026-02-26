@@ -155,8 +155,8 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Added SCORING_FUNCTIONS dict mapping category keys to scoring.py functions; CategoryRow.update_preview() sets preview score text with .preview CSS class; update_score() clears .preview class on commit; ScorecardWidget.refresh_scores() calls update_preview() for uncommitted categories when roll_count >= 1, clears preview when roll_count == 0. Preview style: italic muted #6e7681 color. All 98 tests still pass."
     },
     {
       "id": "US-009",
