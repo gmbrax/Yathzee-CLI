@@ -20,10 +20,49 @@ Footer {
 }
 
 #dice-panel {
-    width: 44;
+    width: 52;
     padding: 1;
     border: solid #30363d;
     background: #16213e;
+}
+
+#dice-row {
+    layout: horizontal;
+    height: auto;
+}
+
+/* ── DIE WIDGET ── */
+DieWidget {
+    width: 9;
+    height: 6;
+    border: solid #484f58;
+    padding: 0 1;
+    margin: 0;
+}
+
+DieWidget:focus {
+    border: solid #58a6ff;
+}
+
+DieWidget.held {
+    border: double #3fb950;
+}
+
+DieWidget.held:focus {
+    border: double #58a6ff;
+}
+
+DieWidget > Static {
+    color: #e6edf3;
+    text-align: center;
+    height: 3;
+}
+
+DieWidget > Label {
+    color: #3fb950;
+    text-align: center;
+    text-style: bold;
+    height: 1;
 }
 
 #scorecard-panel {

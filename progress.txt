@@ -1,4 +1,7 @@
 ## Codebase Patterns
+- DieWidget IDs for inner children use die index to stay globally unique: `id=f"face-{self.die_index}"` — `self.query_one(f"#face-{self.die_index}", Static)` queries within the widget's own subtree
+- `Widget.can_focus = True` (class variable) makes a widget keyboard-focusable; CSS `:focus` pseudo-class then controls focus styles
+- CSS compound selectors work in Textual: `DieWidget.held:focus { border: double #58a6ff; }` — both `.held` class and `:focus` pseudo-class applied simultaneously
 - Tests run with: `pytest test_scoring.py -v` or `pytest test_game.py -v` (pytest 8.4.1, Python 3.10.6)
 - No typecheck tool installed (pyright/mypy not available) — skip typecheck step
 - Project uses a `.venv` but the system pytest works fine
@@ -9,6 +12,28 @@
 - `GameState.scores` maps all 13 category names to `int | None` (None = uncommitted)
 - New TUI lives in `yahtzee/` package; `CSS_PATH = "app.tcss"` resolves relative to the app.py file, so place app.tcss in yahtzee/
 - Run with `python -m yahtzee` from project root; `TITLE`/`SUB_TITLE` class vars display in the built-in Header widget
+
+---
+
+## 2026-02-26 - US-004
+- Created `yahtzee/die_widget.py` with `DieWidget(Widget)`:
+  - `can_focus = True` enables keyboard focus
+  - `DICE_FACES` dict maps 0–6 to 3-row pip-layout strings (no inner box borders; Textual CSS border acts as the box)
+  - `value: reactive[int]` and `held: reactive[bool]` drive `watch_*` methods
+  - `compose()` yields a `Static` (pip face) and a `Label` (HELD indicator), both with index-scoped IDs
+  - `watch_held()` updates the label text and sets/removes `.held` CSS class
+- Updated `yahtzee/app.py` to import `DieWidget` and yield five `DieWidget(i, id=f"die-{i}")` instances inside a `Horizontal(id="dice-row")` inside `#dice-panel`
+- Updated `yahtzee/app.tcss`:
+  - `#dice-panel` width bumped from 44 → 52 to fit 5 × 9-char dice
+  - Added `#dice-row`, `DieWidget`, `DieWidget:focus`, `DieWidget.held`, `DieWidget.held:focus` rules
+  - Dim border (`#484f58`) by default; solid accent (`#58a6ff`) on focus; double green (`#3fb950`) when held; double accent when both
+- All 98 existing tests still pass
+- Files changed: `yahtzee/die_widget.py` (new), `yahtzee/app.py`, `yahtzee/app.tcss`, `prd.json` (US-004 passes: true)
+- **Learnings for future iterations:**
+  - `Widget.can_focus = True` as a class variable is the correct way to make a custom widget focusable in Textual 8.x
+  - Inner widget IDs must be globally unique across the DOM — use `id=f"face-{self.die_index}"` pattern; `self.query_one()` scopes the query to the widget's own subtree so no functional conflict, but unique IDs are still best practice
+  - Textual's CSS `border: double` is a valid border style for held-state visual distinction; compound selectors `Widget.class:focus` work correctly
+  - `height: 3` on the inner `Static` and `height: 1` on the inner `Label` pins each child to exact row counts, preventing layout drift when content changes
 
 ---
 

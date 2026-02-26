@@ -2,6 +2,8 @@ from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
 from textual.containers import Horizontal, Vertical
 
+from yahtzee.die_widget import DieWidget
+
 
 class YahtzeeApp(App):
     CSS_PATH = "app.tcss"
@@ -13,7 +15,9 @@ class YahtzeeApp(App):
         yield Header()
         with Horizontal(id="main-layout"):
             with Vertical(id="dice-panel"):
-                pass
+                with Horizontal(id="dice-row"):
+                    for i in range(5):
+                        yield DieWidget(i, id=f"die-{i}")
             with Vertical(id="scorecard-panel"):
                 pass
         yield Footer()

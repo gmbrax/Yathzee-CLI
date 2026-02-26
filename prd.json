@@ -82,8 +82,8 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created yahtzee/die_widget.py with DieWidget (can_focus=True); pip layouts for faces 0-6; held/focus border states via CSS; HELD label via reactive watch_held. Five DieWidget instances in a Horizontal #dice-row inside #dice-panel. All 98 tests still pass."
     },
     {
       "id": "US-005",
