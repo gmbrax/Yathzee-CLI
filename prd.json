@@ -23,8 +23,8 @@
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented scoring.py with 13 pure functions; 55 unit tests all passing."
     },
     {
       "id": "US-002",
@@ -43,8 +43,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented game.py with GameState class; 43 unit tests all passing."
     },
     {
       "id": "US-003",

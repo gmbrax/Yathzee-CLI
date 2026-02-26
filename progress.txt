@@ -1,0 +1,36 @@
+## Codebase Patterns
+- Tests run with: `pytest test_scoring.py -v` or `pytest test_game.py -v` (pytest 8.4.1, Python 3.10.6)
+- No typecheck tool installed (pyright/mypy not available) — skip typecheck step
+- Project uses a `.venv` but the system pytest works fine
+- `main.py` already contains a working Yahtzee TUI — new modules should complement it
+- Scoring functions use `Counter` from `collections` for counting die values
+- `game.py` uses category names matching scoring.py functions (e.g., "three_of_a_kind", "small_straight") — NOT the abbreviated names used in main.py ("three_of_kind", "sm_straight")
+- `GameState.commit()` raises `ValueError` for unknown category, already committed, or roll_count == 0
+- `GameState.scores` maps all 13 category names to `int | None` (None = uncommitted)
+
+---
+
+## 2026-02-26 - US-002
+- Implemented `game.py` with `GameState` class: attributes `dice`, `held`, `roll_count`, `scores`, `game_over`; methods `roll()`, `toggle_hold(index)`, `commit(category)`, `reset()`; properties `upper_subtotal`, `bonus`, `grand_total`, `is_game_over`
+- Created `test_game.py` with 43 unit tests covering all methods and properties (init, roll, toggle_hold, commit, reset, upper_subtotal, bonus, grand_total, is_game_over)
+- Files changed: `game.py` (new), `test_game.py` (new), `prd.json` (US-002 passes: true)
+- **Learnings for future iterations:**
+  - `game.py` uses scoring.py's category names ("three_of_a_kind", "small_straight", etc.) — different from main.py abbreviations ("three_of_kind", "sm_straight"); be careful when wiring UI to GameState
+  - `commit()` raises `ValueError` for all error cases (unknown category, already committed, pre-roll)
+  - `upper_subtotal` uses a generator sum that skips None values — works cleanly with the `int | None` scores dict
+  - `is_game_over` property is computed on-the-fly; `game_over` bool attribute is only set to True inside `commit()` after the last category is committed
+  - Test for `toggle_hold` before first roll: no-op is the correct behavior per PRD
+---
+
+## 2026-02-26 18:55 - US-001
+- Implemented `scoring.py` with 13 pure functions: ones, twos, threes, fours, fives, sixes, three_of_a_kind, four_of_a_kind, full_house, small_straight, large_straight, yahtzee, chance
+- Created `test_scoring.py` with 55 unit tests covering all categories and edge cases
+- Initialized git repository and created branch `ralph/yahtzee-tui`
+- Files changed: `scoring.py` (new), `test_scoring.py` (new)
+- **Learnings for future iterations:**
+  - No typecheck tool (pyright/mypy) is available — the acceptance criteria says "typecheck passes" but there's nothing to run; just ensure clean Python syntax
+  - `main.py` already has all the game logic in a single file; future stories should refactor or build on it
+  - The existing `calc_score()` function in `main.py` uses a single match statement — `scoring.py` creates individual functions per the PRD requirement
+  - `small_straight` uses `set.issubset()` on unique die values; this handles duplicates correctly
+  - `full_house` checks `sorted(counts.values()) == [2, 3]` — five of a kind returns `[5]` so it correctly returns 0
+---
