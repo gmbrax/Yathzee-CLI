@@ -137,8 +137,8 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created yahtzee/scorecard_widget.py with CategoryRow (can_focus=True, horizontal label+score layout) and ScorecardWidget (VerticalScroll, can_focus=False). Sections: UPPER (6 categories) and LOWER (7 categories) with subtotal/bonus/bonus-hint/grand-total rows. App.on_mount and action_roll call refresh_scores(). All 98 tests still pass."
     },
     {
       "id": "US-008",

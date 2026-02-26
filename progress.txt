@@ -1,3 +1,17 @@
+## 2026-02-26 - US-007
+- Created `yahtzee/scorecard_widget.py` with:
+  - `CategoryRow(Widget)`: `can_focus=True`, horizontal layout with `.row-label` (1fr) and `.row-score` (width 4); `update_score()` sets text and toggles `.committed` class
+  - `ScorecardWidget(VerticalScroll)`: `can_focus=False`; composes UPPER SECTION header, 6 CategoryRows, subtotal/bonus/bonus-hint statics, LOWER SECTION header, 7 CategoryRows, grand-total static; `refresh_scores(game)` syncs all displays from GameState
+- Updated `yahtzee/app.py`: imported `ScorecardWidget`, yielded `ScorecardWidget(id="scorecard")` inside `#scorecard-panel`, called `refresh_scores()` in both `on_mount` and `action_roll`
+- Updated `yahtzee/app.tcss`: added styles for `ScorecardWidget`, `CategoryRow`, `CategoryRow:focus`, `CategoryRow.committed`, `.section-header`, `.row-label`, `.row-score`, `.totals-row`, `.grand-total`, `.bonus-hint`
+- Files changed: `yahtzee/scorecard_widget.py` (new), `yahtzee/app.py`, `yahtzee/app.tcss`, `prd.json` (US-007 passes: true)
+- **Learnings for future iterations:**
+  - `ScorecardWidget(VerticalScroll)` gives automatic scrolling; override `can_focus = False` so the scroll container itself isn't focusable — only the `CategoryRow` children are
+  - `DieWidget.action_focus_scorecard()` from US-006 queries all focusable descendants of `#scorecard-panel`; since `CategoryRow.can_focus = True`, Tab from dice now lands on the first CategoryRow automatically
+  - `color: inherit` in CSS makes child Static widgets pick up the parent `CategoryRow` color, enabling `.committed` and `:focus` overrides to cascade to label and score simultaneously
+  - `VerticalScroll` scrollbar only appears when content height exceeds container height — no extra config needed
+---
+
 ## 2026-02-26 - US-005
 - Wired `GameState` into `YahtzeeApp` via `on_mount(self) -> None: self.game = GameState()`
 - Added `("r", "roll", "Roll")` to `BINDINGS`; `action_roll()` calls `game.roll()`, updates each die's `value` reactive, updates `self.sub_title`
@@ -37,6 +51,8 @@
 - `GameState.scores` maps all 13 category names to `int | None` (None = uncommitted)
 - New TUI lives in `yahtzee/` package; `CSS_PATH = "app.tcss"` resolves relative to the app.py file, so place app.tcss in yahtzee/
 - Run with `python -m yahtzee` from project root; `TITLE`/`SUB_TITLE` class vars display in the built-in Header widget
+- Use `VerticalScroll` as base class for scrollable panel widgets; set `can_focus = False` on the container if only child rows should be focusable
+- `color: inherit` in TCSS makes Static children follow parent Widget's color, enabling focus/committed state to cascade cleanly
 
 ---
 

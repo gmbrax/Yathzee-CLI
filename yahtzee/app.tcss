@@ -70,3 +70,63 @@ DieWidget > Label {
     padding: 1;
     background: #1a1a2e;
 }
+
+/* ── SCORECARD WIDGET ── */
+ScorecardWidget {
+    width: 1fr;
+    height: 1fr;
+    background: #1a1a2e;
+}
+
+.section-header {
+    color: #58a6ff;
+    text-style: bold;
+    padding: 0 1;
+    height: 1;
+    margin-top: 1;
+}
+
+CategoryRow {
+    layout: horizontal;
+    height: 1;
+    padding: 0 1;
+    color: #e6edf3;
+}
+
+CategoryRow:focus {
+    background: #2d333b;
+    color: #58a6ff;
+}
+
+CategoryRow.committed {
+    color: #484f58;
+}
+
+.row-label {
+    width: 1fr;
+    color: inherit;
+}
+
+.row-score {
+    width: 4;
+    text-align: right;
+    color: inherit;
+}
+
+.totals-row {
+    padding: 0 1;
+    height: 1;
+    color: #c9d1d9;
+    text-style: bold;
+}
+
+.grand-total {
+    color: #58a6ff;
+    margin-top: 1;
+}
+
+.bonus-hint {
+    padding: 0 1;
+    height: 1;
+    color: #8b949e;
+}
