@@ -2,6 +2,7 @@
 
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll
+from textual.message import Message
 from textual.widget import Widget
 from textual.widgets import Static
 
@@ -37,10 +38,18 @@ class CategoryRow(Widget):
 
     can_focus = True
 
+    class CommitRequest(Message):
+        """Posted when the player presses Enter to commit this category."""
+
+        def __init__(self, key: str) -> None:
+            super().__init__()
+            self.key = key
+
     BINDINGS = [
         ("up", "focus_prev", ""),
         ("down", "focus_next", ""),
         ("tab", "focus_dice", ""),
+        ("enter", "commit", "Commit"),
     ]
 
     def __init__(self, key: str, label: str, **kwargs) -> None:
@@ -84,6 +93,10 @@ class CategoryRow(Widget):
 
     def action_focus_dice(self) -> None:
         self.app.query_one("#die-0").focus()
+
+    def action_commit(self) -> None:
+        """Post a CommitRequest; the App handler guards against roll_count == 0."""
+        self.post_message(self.CommitRequest(self.key))
 
     def update_preview(self, score: int | None) -> None:
         """Show a preview score for an uncommitted category (or clear if None)."""

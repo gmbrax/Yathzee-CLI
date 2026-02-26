@@ -3,7 +3,7 @@ from textual.widgets import Header, Footer
 from textual.containers import Horizontal, Vertical
 
 from yahtzee.die_widget import DieWidget
-from yahtzee.scorecard_widget import ScorecardWidget
+from yahtzee.scorecard_widget import CategoryRow, ScorecardWidget
 from game import GameState
 
 
@@ -45,6 +45,20 @@ class YahtzeeApp(App):
         self.query_one(f"#die-{event.index}", DieWidget).held = self.game.held[
             event.index
         ]
+
+    def on_category_row_commit_request(
+        self, event: CategoryRow.CommitRequest
+    ) -> None:
+        if self.game.roll_count < 1:
+            return
+        self.game.commit(event.key)
+        for i in range(5):
+            die = self.query_one(f"#die-{i}", DieWidget)
+            die.value = 0
+            die.held = False
+        self.sub_title = "Roll 0/3"
+        self.query_one(ScorecardWidget).refresh_scores(self.game)
+        self.query_one("#die-0").focus()
 
 
 if __name__ == "__main__":
