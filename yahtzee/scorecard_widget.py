@@ -5,6 +5,7 @@ from textual.containers import VerticalScroll
 from textual.widget import Widget
 from textual.widgets import Static
 
+import scoring
 from game import GameState
 
 UPPER_CATEGORIES: list[tuple[str, str]] = [
@@ -28,6 +29,8 @@ LOWER_CATEGORIES: list[tuple[str, str]] = [
 
 ALL_CATEGORIES = UPPER_CATEGORIES + LOWER_CATEGORIES
 
+SCORING_FUNCTIONS = {key: getattr(scoring, key) for key, _ in ALL_CATEGORIES}
+
 
 class CategoryRow(Widget):
     """A single scorecard row: category name on the left, score on the right."""
@@ -45,13 +48,23 @@ class CategoryRow(Widget):
 
     def update_score(self, score: int | None) -> None:
         """Update the displayed score and apply committed styling."""
-        self.query_one(f"#cat-score-{self.key}", Static).update(
-            "" if score is None else str(score)
-        )
+        score_widget = self.query_one(f"#cat-score-{self.key}", Static)
+        score_widget.update("" if score is None else str(score))
+        score_widget.remove_class("preview")
         if score is not None:
             self.add_class("committed")
         else:
             self.remove_class("committed")
+
+    def update_preview(self, score: int | None) -> None:
+        """Show a preview score for an uncommitted category (or clear if None)."""
+        score_widget = self.query_one(f"#cat-score-{self.key}", Static)
+        if score is None:
+            score_widget.update("")
+            score_widget.remove_class("preview")
+        else:
+            score_widget.update(str(score))
+            score_widget.add_class("preview")
 
 
 class ScorecardWidget(VerticalScroll):
@@ -74,7 +87,14 @@ class ScorecardWidget(VerticalScroll):
     def refresh_scores(self, game: GameState) -> None:
         """Sync all displayed values with the current GameState."""
         for key, _ in ALL_CATEGORIES:
-            self.query_one(f"#row-{key}", CategoryRow).update_score(game.scores[key])
+            row = self.query_one(f"#row-{key}", CategoryRow)
+            committed = game.scores[key]
+            if committed is not None:
+                row.update_score(committed)
+            elif game.roll_count >= 1:
+                row.update_preview(SCORING_FUNCTIONS[key](game.dice))
+            else:
+                row.update_preview(None)
 
         subtotal = game.upper_subtotal
         self.query_one("#subtotal-row", Static).update(f"Subtotal: {subtotal} / 63")

@@ -130,3 +130,8 @@ CategoryRow.committed {
     height: 1;
     color: #8b949e;
 }
+
+.preview {
+    color: #6e7681;
+    text-style: italic;
+}
