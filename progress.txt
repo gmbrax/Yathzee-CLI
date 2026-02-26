@@ -1,3 +1,19 @@
+## 2026-02-26 - US-010
+- Updated `yahtzee/scorecard_widget.py`:
+  - Added `from textual.message import Message` import
+  - Added `CategoryRow.CommitRequest(Message)` inner class with `key: str` attribute
+  - Added `("enter", "commit", "Commit")` to `CategoryRow.BINDINGS`
+  - Added `CategoryRow.action_commit()`: posts `CommitRequest(self.key)` — guard happens in App handler
+- Updated `yahtzee/app.py`:
+  - Added `CategoryRow` to import from `yahtzee.scorecard_widget`
+  - Added `on_category_row_commit_request()`: guards `roll_count < 1` (no-op), calls `game.commit(event.key)`, resets all 5 DieWidgets (`value=0`, `held=False`), updates `sub_title = "Roll 0/3"`, calls `refresh_scores()`, focuses `#die-0`
+- Files changed: `yahtzee/scorecard_widget.py`, `yahtzee/app.py`, `prd.json` (US-010 passes: true)
+- **Learnings for future iterations:**
+  - After `game.commit()`, game internally resets `dice=[0]*5`, `held=[False]*5`, `roll_count=0` — App just needs to sync DieWidgets and call `refresh_scores()`
+  - Returning focus to `#die-0` after commit gives a natural turn transition: player is back at the dice ready to roll next turn
+  - The `roll_count < 1` guard in the App handler is the single enforcement point; CategoryRow doesn't need to know game state — it always posts the message and lets the App decide
+---
+
 ## 2026-02-26 - US-009
 - Updated `yahtzee/scorecard_widget.py`:
   - Added `BINDINGS = [("up", "focus_prev", ""), ("down", "focus_next", ""), ("tab", "focus_dice", "")]` to `CategoryRow`

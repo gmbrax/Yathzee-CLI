@@ -189,8 +189,8 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Added CommitRequest(Message) inner class and ('enter', 'commit', 'Commit') binding to CategoryRow; action_commit() posts CommitRequest(self.key); App.on_category_row_commit_request() guards roll_count >= 1, calls game.commit(), resets all DieWidgets to value=0/held=False, resets sub_title to 'Roll 0/3', calls refresh_scores(), then focuses #die-0. All 98 tests still pass."
     },
     {
       "id": "US-011",
