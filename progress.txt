@@ -7,6 +7,23 @@
 - `game.py` uses category names matching scoring.py functions (e.g., "three_of_a_kind", "small_straight") — NOT the abbreviated names used in main.py ("three_of_kind", "sm_straight")
 - `GameState.commit()` raises `ValueError` for unknown category, already committed, or roll_count == 0
 - `GameState.scores` maps all 13 category names to `int | None` (None = uncommitted)
+- New TUI lives in `yahtzee/` package; `CSS_PATH = "app.tcss"` resolves relative to the app.py file, so place app.tcss in yahtzee/
+- Run with `python -m yahtzee` from project root; `TITLE`/`SUB_TITLE` class vars display in the built-in Header widget
+
+---
+
+## 2026-02-26 - US-003
+- Created `yahtzee/` package: `__init__.py`, `__main__.py`, `app.py`, `app.tcss`
+- `YahtzeeApp` subclasses `textual.app.App` with `TITLE = "YAHTZEE"` and `SUB_TITLE = "Roll 0/3"` displayed in Header
+- Two-column horizontal layout: `#dice-panel` (left, width 44) and `#scorecard-panel` (right, 1fr)
+- All styles in `app.tcss` — dark background `#1a1a2e`, light-on-dark text; no inline CSS in Python
+- No mouse event handlers; panels are empty placeholders for US-004 and US-007
+- Files changed: `yahtzee/__init__.py` (new), `yahtzee/__main__.py` (new), `yahtzee/app.py` (new), `yahtzee/app.tcss` (new), `prd.json` (US-003 passes: true)
+- **Learnings for future iterations:**
+  - `CSS_PATH = "app.tcss"` in App subclass resolves relative to the .py file — place `app.tcss` in the same directory as `app.py`
+  - Empty `with Vertical(id="..."):` / `pass` blocks in `compose()` are valid; Textual handles childless containers
+  - `TITLE` and `SUB_TITLE` class vars on `App` are automatically shown in the built-in `Header()` widget — update `self.sub_title` at runtime to change the roll counter
+  - `python -m yahtzee` works because `yahtzee/__main__.py` exists; run from project root
 
 ---
 

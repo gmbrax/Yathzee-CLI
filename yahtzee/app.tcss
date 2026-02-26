@@ -1,0 +1,33 @@
+Screen {
+    background: #1a1a2e;
+    color: #e6edf3;
+}
+
+Header {
+    background: #16213e;
+    color: #58a6ff;
+    text-style: bold;
+}
+
+Footer {
+    background: #16213e;
+    color: #8b949e;
+}
+
+#main-layout {
+    layout: horizontal;
+    height: 1fr;
+}
+
+#dice-panel {
+    width: 44;
+    padding: 1;
+    border: solid #30363d;
+    background: #16213e;
+}
+
+#scorecard-panel {
+    width: 1fr;
+    padding: 1;
+    background: #1a1a2e;
+}

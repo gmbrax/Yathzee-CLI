@@ -62,8 +62,8 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created yahtzee/ package with App subclass, two-panel horizontal layout, Header showing YAHTZEE title and Roll 0/3 subtitle, all styles in app.tcss (dark #1a1a2e background), no mouse handlers. Runnable via python -m yahtzee."
     },
     {
       "id": "US-004",
