@@ -102,8 +102,8 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Wired GameState into YahtzeeApp (on_mount); 'r' binding calls action_roll() which updates all DieWidget values and sub_title; DieWidget posts ToggleHoldRequest on Space; App handler calls game.toggle_hold() and refreshes die.held. All 98 tests still pass."
     },
     {
       "id": "US-006",

@@ -1,3 +1,17 @@
+## 2026-02-26 - US-005
+- Wired `GameState` into `YahtzeeApp` via `on_mount(self) -> None: self.game = GameState()`
+- Added `("r", "roll", "Roll")` to `BINDINGS`; `action_roll()` calls `game.roll()`, updates each die's `value` reactive, updates `self.sub_title`
+- Added `DieWidget.ToggleHoldRequest(Message)` inner class with `index` attribute
+- Added `BINDINGS = [("space", "toggle_hold", "Hold/Release")]` + `action_toggle_hold()` to `DieWidget` — posts the message
+- Added `on_die_widget_toggle_hold_request()` handler in App — calls `game.toggle_hold(event.index)` and syncs `die.held`
+- Files changed: `yahtzee/die_widget.py`, `yahtzee/app.py`, `prd.json` (US-005 passes: true)
+- **Learnings for future iterations:**
+  - Use Textual's `Message` subclass pattern for widget-to-app communication — define the message as an inner class on the widget, post it from a widget action, handle it in the app with `on_{widget_class_snake}_{message_class_snake}()`
+  - `BINDINGS` on a focusable widget are only active when that widget has keyboard focus — safe for per-die Space handling
+  - `on_mount` fires after `compose`; safe place to initialize `self.game = GameState()` since user interaction can't happen before mount
+  - `GameState.toggle_hold()` is a no-op when `roll_count < 1` — so the app handler doesn't need to guard this; the game model handles it cleanly
+---
+
 ## Codebase Patterns
 - DieWidget IDs for inner children use die index to stay globally unique: `id=f"face-{self.die_index}"` — `self.query_one(f"#face-{self.die_index}", Static)` queries within the widget's own subtree
 - `Widget.can_focus = True` (class variable) makes a widget keyboard-focusable; CSS `:focus` pseudo-class then controls focus styles
