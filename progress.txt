@@ -12,6 +12,17 @@
   - `GameState.toggle_hold()` is a no-op when `roll_count < 1` — so the app handler doesn't need to guard this; the game model handles it cleanly
 ---
 
+## 2026-02-26 - US-006
+- Added `("left", "focus_prev_die", "")`, `("right", "focus_next_die", "")`, and `("tab", "focus_scorecard", "")` to `DieWidget.BINDINGS`
+- `action_focus_prev_die()` and `action_focus_next_die()` use `(self.die_index ± 1) % 5` for wrapping, then call `self.app.query_one(f"#die-{idx}", DieWidget).focus()`
+- `action_focus_scorecard()` queries `#scorecard-panel` for any focusable descendants and focuses the first one; no-op until US-007 adds a focusable widget there
+- Files changed: `yahtzee/die_widget.py`, `prd.json` (US-006 passes: true)
+- **Learnings for future iterations:**
+  - Adding a key to a widget's `BINDINGS` overrides the default Textual behavior for that key when the widget has focus (e.g., `tab` binding in DieWidget prevents the default Tab focus-cycle behavior, allowing a direct jump to the scorecard)
+  - Modulo wrap for cyclic navigation: `(index ± 1) % 5` handles both forward and backward wrapping in a single expression
+  - `action_focus_scorecard()` in DieWidget future-proofs Tab → scorecard handoff: once US-007 adds a focusable ScorecardWidget inside `#scorecard-panel`, Tab will work without further changes to DieWidget
+---
+
 ## Codebase Patterns
 - DieWidget IDs for inner children use die index to stay globally unique: `id=f"face-{self.die_index}"` — `self.query_one(f"#face-{self.die_index}", Static)` queries within the widget's own subtree
 - `Widget.can_focus = True` (class variable) makes a widget keyboard-focusable; CSS `:focus` pseudo-class then controls focus styles

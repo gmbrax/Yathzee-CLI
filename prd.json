@@ -119,8 +119,8 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Added left/right bindings to DieWidget with modulo-wrap navigation; tab binding delegates to action_focus_scorecard() which queries first focusable in #scorecard-panel (no-op until US-007 adds content). All 98 tests still pass."
     },
     {
       "id": "US-007",
