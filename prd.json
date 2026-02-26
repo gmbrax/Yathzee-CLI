@@ -172,8 +172,8 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Added BINDINGS [(up, focus_prev), (down, focus_next), (tab, focus_dice)] to CategoryRow; action methods skip committed rows via has_class('committed'); update_score() sets self.can_focus = False on commit so DieWidget.action_focus_scorecard() also skips committed rows; Tab returns focus to #die-0. All 98 tests still pass."
     },
     {
       "id": "US-010",

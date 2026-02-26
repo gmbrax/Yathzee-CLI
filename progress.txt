@@ -1,3 +1,19 @@
+## 2026-02-26 - US-009
+- Updated `yahtzee/scorecard_widget.py`:
+  - Added `BINDINGS = [("up", "focus_prev", ""), ("down", "focus_next", ""), ("tab", "focus_dice", "")]` to `CategoryRow`
+  - Added `_uncommitted_rows()`: queries all `CategoryRow` instances app-wide, filters out `.committed` rows
+  - Added `action_focus_prev()` / `action_focus_next()`: navigate among uncommitted rows (non-wrapping; no-op at boundaries)
+  - Added `action_focus_dice()`: focuses `#die-0` to return to the dice panel
+  - Updated `update_score()`: sets `self.can_focus = False` on commit, `True` on uncommit — ensures Textual's own focus system also skips committed rows
+- CSS for `CategoryRow:focus` (accent background + blue text) was already in place from US-007 — no TCSS changes needed
+- Files changed: `yahtzee/scorecard_widget.py`, `prd.json` (US-009 passes: true)
+- **Learnings for future iterations:**
+  - Setting `self.can_focus = False` on an instance overrides the class-level `can_focus = True`, making it respected by both Textual's default focus cycle and `DieWidget.action_focus_scorecard()` which checks `w.can_focus`
+  - `self.app.query(CategoryRow)` queries all CategoryRows in the entire app DOM in document order — safe since all rows live inside the single ScorecardWidget
+  - `has_class("committed")` is the reliable way to check committed state from outside; `can_focus` instance attribute tracks the same state but may lag if checked before `update_score()` is called
+  - BINDINGS defined on a widget only fire when that widget has keyboard focus — Tab override in CategoryRow blocks default Tab cycle, enabling direct return to dice panel
+---
+
 ## 2026-02-26 - US-008
 - Updated `yahtzee/scorecard_widget.py`:
   - Added `import scoring` and `SCORING_FUNCTIONS = {key: getattr(scoring, key) for key, _ in ALL_CATEGORIES}` for compact mapping
