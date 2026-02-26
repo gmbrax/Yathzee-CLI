@@ -37,6 +37,12 @@ class CategoryRow(Widget):
 
     can_focus = True
 
+    BINDINGS = [
+        ("up", "focus_prev", ""),
+        ("down", "focus_next", ""),
+        ("tab", "focus_dice", ""),
+    ]
+
     def __init__(self, key: str, label: str, **kwargs) -> None:
         super().__init__(**kwargs)
         self.key = key
@@ -53,8 +59,31 @@ class CategoryRow(Widget):
         score_widget.remove_class("preview")
         if score is not None:
             self.add_class("committed")
+            self.can_focus = False
         else:
             self.remove_class("committed")
+            self.can_focus = True
+
+    def _uncommitted_rows(self) -> list["CategoryRow"]:
+        """Return all non-committed CategoryRows in document order."""
+        return [r for r in self.app.query(CategoryRow) if not r.has_class("committed")]
+
+    def action_focus_prev(self) -> None:
+        rows = self._uncommitted_rows()
+        if self in rows:
+            idx = rows.index(self)
+            if idx > 0:
+                rows[idx - 1].focus()
+
+    def action_focus_next(self) -> None:
+        rows = self._uncommitted_rows()
+        if self in rows:
+            idx = rows.index(self)
+            if idx < len(rows) - 1:
+                rows[idx + 1].focus()
+
+    def action_focus_dice(self) -> None:
+        self.app.query_one("#die-0").focus()
 
     def update_preview(self, score: int | None) -> None:
         """Show a preview score for an uncommitted category (or clear if None)."""
