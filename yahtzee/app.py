@@ -10,6 +10,8 @@ from yahtzee.die_widget import DieWidget
 from yahtzee.game_over_screen import GameOverScreen
 from yahtzee.name_entry_screen import NameEntryScreen
 from yahtzee.quit_confirm_screen import QuitConfirmScreen
+from yahtzee.about_screen import AboutScreen
+from yahtzee.rules_screen import RulesScreen
 from yahtzee.scorecard_widget import CategoryRow, ScorecardWidget
 from yahtzee.scoreboard_screen import ScoreboardScreen
 from yahtzee.yahtzee_celebration_screen import YahtzeeCelebrationScreen
@@ -26,6 +28,8 @@ class YahtzeeApp(App):
         ("n", "new_game", "New Game"),
         ("s", "show_scoreboard", "Scores"),
         ("q", "quit_confirm", "Quit"),
+        ("question_mark", "show_rules", "Rules"),
+        ("a", "show_about", "About"),
     ]
 
     def on_mount(self) -> None:
@@ -139,6 +143,14 @@ class YahtzeeApp(App):
 
     def action_quit(self) -> None:
         self.push_screen(QuitConfirmScreen(), self._handle_quit_confirm)
+
+    def action_show_rules(self) -> None:
+        if len(self.screen_stack) == 1:
+            self.push_screen(RulesScreen())
+
+    def action_show_about(self) -> None:
+        if len(self.screen_stack) == 1:
+            self.push_screen(AboutScreen())
 
     def _handle_quit_confirm(self, result: bool | None) -> None:
         if result:
