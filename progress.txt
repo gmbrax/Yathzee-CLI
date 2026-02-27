@@ -31,6 +31,17 @@
   - Textual's Markdown widget loads raw markdown text via `.update(content)` or constructor; verify by reading the file in Python
 ---
 
+## 2026-02-27 - US-004
+- Added `from yahtzee.rules_screen import RulesScreen` to `yahtzee/app.py`
+- Added `("question_mark", "show_rules", "Rules")` to `BINDINGS` in `YahtzeeApp`
+- Added `action_show_rules()` with guard `if len(self.screen_stack) == 1`
+- All 55 existing tests continue to pass
+- Files changed: `yahtzee/app.py` (modified)
+- **Learnings for future iterations:**
+  - Textual binding key name for `?` is `"question_mark"` (not `"?"`); same pattern applies to other special chars
+  - Guard pattern `if len(self.screen_stack) == 1` prevents double-pushing modals; screen_stack[0] is always the base screen
+---
+
 ## 2026-02-27 - US-003
 - Created `yahtzee/rules_screen.py` with `RulesScreen(ModalScreen)`
 - Used `VerticalScroll` wrapping `Markdown` widget for scrollable content
