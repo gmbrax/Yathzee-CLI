@@ -104,7 +104,8 @@ class YahtzeeApp(App):
 
     def action_new_game(self) -> None:
         any_committed = any(v is not None for v in self.game.scores.values())
-        if any_committed and not self.game.is_game_over:
+        game_in_progress = any_committed or self.game.roll_count > 0
+        if game_in_progress and not self.game.is_game_over:
             self.push_screen(ConfirmNewGameScreen(), self._handle_confirm_new_game)
         else:
             self._reset_game()

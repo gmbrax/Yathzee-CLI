@@ -27,6 +27,11 @@ class ConfirmNewGameScreen(ModalScreen):
         text-style: bold;
         padding-bottom: 1;
     }
+    #confirm-warning {
+        text-align: center;
+        color: #e06c75;
+        padding-bottom: 1;
+    }
     #confirm-hint {
         text-align: center;
         color: #8b949e;
@@ -36,6 +41,7 @@ class ConfirmNewGameScreen(ModalScreen):
     def compose(self) -> ComposeResult:
         with Vertical(id="confirm-dialog"):
             yield Static("Start a new game?", id="confirm-title")
+            yield Static("Your current progress will be lost.", id="confirm-warning")
             yield Static("(Y to confirm, any other key to cancel)", id="confirm-hint")
 
     def on_key(self, event: Key) -> None:
