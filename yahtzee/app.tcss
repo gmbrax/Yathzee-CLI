@@ -135,3 +135,12 @@ CategoryRow.committed {
     color: #6e7681;
     text-style: italic;
 }
+
+/* ── GAME OVER SCREEN ── */
+.bonus-earned {
+    color: #3fb950;
+}
+
+.bonus-missed {
+    color: #8b949e;
+}

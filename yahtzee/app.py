@@ -3,6 +3,7 @@ from textual.widgets import Header, Footer
 from textual.containers import Horizontal, Vertical
 
 from yahtzee.die_widget import DieWidget
+from yahtzee.game_over_screen import GameOverScreen
 from yahtzee.scorecard_widget import CategoryRow, ScorecardWidget
 from game import GameState
 
@@ -52,6 +53,26 @@ class YahtzeeApp(App):
         if self.game.roll_count < 1:
             return
         self.game.commit(event.key)
+        for i in range(5):
+            die = self.query_one(f"#die-{i}", DieWidget)
+            die.value = 0
+            die.held = False
+        self.sub_title = "Roll 0/3"
+        self.query_one(ScorecardWidget).refresh_scores(self.game)
+        if self.game.is_game_over:
+            self.push_screen(
+                GameOverScreen(self.game.grand_total, self.game.bonus > 0),
+                self._handle_game_over,
+            )
+        else:
+            self.query_one("#die-0").focus()
+
+    def _handle_game_over(self, result: bool | None) -> None:
+        if result:
+            self._reset_game()
+
+    def _reset_game(self) -> None:
+        self.game.reset()
         for i in range(5):
             die = self.query_one(f"#die-{i}", DieWidget)
             die.value = 0
