@@ -65,3 +65,13 @@
   - Adding a binding only requires two changes: a tuple in `BINDINGS` and a matching `action_<name>()` method
   - `ScoreboardScreen(mode='peek')` already returns state unchanged — no callback needed for peek
 ---
+
+## 2026-02-27 - US-006
+- Updated `yahtzee/__main__.py`: added `def run(): YahtzeeApp().run()` and wrapped module-level execution in `if __name__ == "__main__": run()`
+- Created `pyproject.toml` at project root with `[project]` and `[project.scripts]` sections
+- `yahtzee.__main__:run` is the declared entry point for the `yahtzee` console script
+- **Learnings for future iterations:**
+  - Previous `__main__.py` had bare module-level `app = YahtzeeApp(); app.run()` — no guard; replaced with `run()` + `if __name__ == "__main__":`
+  - `pyproject.toml` uses `[project.scripts]` (not `[tool.poetry.scripts]`) for the standard entry point declaration
+  - `python -m yahtzee` still works because `__main__.py` is present in the package
+---
