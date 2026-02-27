@@ -1,3 +1,25 @@
+## 2026-02-26 - US-015
+- Created `yahtzee/quit_confirm_screen.py`:
+  - `QuitOption(Static, can_focus=True)`: focusable option widget with BINDINGS for enter (select), up/down (navigate), escape (cancel)
+  - `action_select()` calls `self.screen.dismiss(self._value)` — True for "Yes", False for "No"
+  - `action_cancel()` calls `self.screen.dismiss(False)` — handles Escape key
+  - `action_focus_prev_option()` / `action_focus_next_option()` call `self.screen.focus_previous()` / `self.screen.focus_next()`
+  - `QuitConfirmScreen(ModalScreen)`: composes title Static + two QuitOption widgets; `on_mount()` focuses `#opt-no`
+  - Inline CSS: `align: center middle` on screen, `width: 40` dialog with red `#ff7b72` double border; `QuitOption:focus` uses `background: #2d333b; color: #58a6ff` (consistent with existing theme)
+- Updated `yahtzee/app.py`:
+  - Changed `("q", "quit", "Quit")` → `("q", "quit_confirm", "Quit")` in BINDINGS
+  - Added `action_quit_confirm()`: pushes `QuitConfirmScreen` with `_handle_quit_confirm` callback
+  - Overrode `action_quit()` (Ctrl+C interceptor): pushes same `QuitConfirmScreen` instead of exiting directly
+  - Added `_handle_quit_confirm(result: bool | None)`: calls `self.exit()` if result is True
+- Files changed: `yahtzee/quit_confirm_screen.py` (new), `yahtzee/app.py`, `prd.json` (US-015 passes: true)
+- **Learnings for future iterations:**
+  - Overriding `action_quit()` in the App class intercepts Ctrl+C (Textual's default quit binding) and replaces it with custom logic
+  - `self.screen.focus_previous()` / `self.screen.focus_next()` in a widget binding navigate among focusable widgets within the active screen — in a ModalScreen with only 2 focusable options, this cycles between them cleanly
+  - `QuitOption(Static, can_focus=True)` is the cleanest pattern for a focusable selectable item in a modal — `can_focus=True` as a class keyword arg works identically to `can_focus = True` as a class variable
+  - Focus starts on "No" (safe default) set in `QuitConfirmScreen.on_mount()` — prevents accidental quit on Enter spam
+  - Both `action_quit_confirm()` and `action_quit()` push the same screen to handle both Q key and Ctrl+C consistently
+---
+
 ## 2026-02-26 - US-014
 - Updated `yahtzee/app.py`:
   - Added `import random` at top

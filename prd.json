@@ -293,8 +293,8 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created yahtzee/quit_confirm_screen.py with QuitOption(Static, can_focus=True) and QuitConfirmScreen(ModalScreen); two focusable options 'Yes — quit' and 'No — keep playing'; focus starts on 'No'; Up/Down keys navigate via screen.focus_previous()/focus_next(); Enter selects via action_select() -> self.screen.dismiss(bool); Escape cancels via action_cancel() -> self.screen.dismiss(False); inline CSS consistent with theme. Updated yahtzee/app.py: changed q binding to quit_confirm; added action_quit_confirm() and overrode action_quit() (Ctrl+C) both push QuitConfirmScreen; _handle_quit_confirm() calls self.exit() if result is True. All 98 tests still pass."
     }
   ]
 }
