@@ -43,3 +43,15 @@
   - `Input` widget imported from `textual.widgets`; `placeholder` and `max_length` are constructor params
   - `on_input_submitted(self, event: Input.Submitted)` is the correct handler signature
 ---
+
+## 2026-02-27 - US-004
+- Modified `yahtzee/app.py` to wire GameOverScreen → NameEntryScreen → ScoreboardScreen
+- Added imports: `NameEntryScreen`, `ScoreboardScreen`, `save_score`
+- `_handle_game_over` now pushes `NameEntryScreen` (ignores GameOverScreen result — decision deferred to scoreboard)
+- `_handle_name_entry` calls `save_score(name, self.game.grand_total)` then pushes `ScoreboardScreen(mode='postgame')`
+- `_handle_scoreboard` handles 'new_game' → `_reset_game()` and 'quit' → `self.exit()`
+- **Learnings for future iterations:**
+  - Textual `push_screen(screen, callback)` chains modals cleanly; each callback receives the dismissed value
+  - The GameOverScreen result is discarded in the new flow — all routing decisions moved to ScoreboardScreen callback
+  - `save_score` accepts `str | None`; guard with `name or "Anonymous"` before calling
+---
