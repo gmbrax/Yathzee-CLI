@@ -36,7 +36,10 @@ class RulesScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         rules_path = Path(__file__).parent / "assets" / "rules.md"
-        rules_content = rules_path.read_text()
+        try:
+            rules_content = rules_path.read_text(encoding="utf-8")
+        except OSError:
+            rules_content = "# Rules unavailable\n\nCould not load `assets/rules.md`."
         with Vertical(id="rules-dialog"):
             with VerticalScroll(id="rules-scroll"):
                 yield Markdown(rules_content)
