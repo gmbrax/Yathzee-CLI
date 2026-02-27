@@ -227,6 +227,74 @@
       "priority": 12,
       "passes": true,
       "notes": "Added ConfirmNewGameScreen(ModalScreen) for mid-game confirmation; N binding on App calls action_new_game() which checks if any category committed (but game not over) before showing confirm dialog; fixed refresh_scores() to call update_score(None) instead of update_preview(None) in the roll_count==0 branch so .committed class is properly cleared on reset."
+    },
+    {
+      "id": "US-013",
+      "title": "Yahtzee celebration modal",
+      "description": "As a player, I want to see a full-screen celebration overlay when I roll a Yahtzee so that the moment feels rewarding before I continue my turn.",
+      "acceptanceCriteria": [
+        "Create yahtzee/yahtzee_celebration_screen.py with YahtzeeCelebrationScreen(ModalScreen)",
+        "After a roll where scoring.yahtzee(game.dice) == 50, push YahtzeeCelebrationScreen on top of the existing UI",
+        "The modal displays large ASCII block-letter art spelling YAHTZEE! centered on screen",
+        "A subtitle line below the art reads 'Press Enter or Space to continue'",
+        "Pressing Enter or Space dismisses the modal (self.dismiss()) and returns to the normal game view",
+        "After dismissal the game state is unchanged — dice values, held states, roll count, and scores are all exactly as before the modal appeared",
+        "The player must still commit a score manually after dismissal (the modal is purely celebratory)",
+        "While the modal is visible, no game actions fire (roll, hold, commit) — Textual's ModalScreen naturally blocks underlying bindings",
+        "The modal does NOT appear when scoring.yahtzee(game.dice) == 0",
+        "The modal uses inline CSS on the screen class (not app.tcss) for centering and dark-theme styling",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "Created yahtzee/yahtzee_celebration_screen.py with YahtzeeCelebrationScreen(ModalScreen); 5-line ASCII art YAHTZEE! centered in a gold-bordered dialog; BINDINGS for enter/space call action_continue_game() -> self.dismiss(); inline CSS handles centering and dark-theme styling. Updated yahtzee/app.py: imported scoring and YahtzeeCelebrationScreen; action_roll() checks scoring.yahtzee(game.dice) == 50 after roll and pushes the modal with no callback (game state unchanged on dismiss). All 98 tests still pass."
+    },
+    {
+      "id": "US-014",
+      "title": "Dice roll animation",
+      "description": "As a player, I want to see each non-held die cycle rapidly through random faces when I press Roll so that the roll feels dynamic and satisfying.",
+      "acceptanceCriteria": [
+        "When action_roll() fires, GameState.roll() is called first (final values computed immediately), then an animation phase begins",
+        "During animation, each non-held die displays rapidly cycling random face values (1–6); held dice do not animate",
+        "Animation runs for 8 frames at 40 ms per frame (~320 ms total), then each animating die snaps to its true final value from game.dice",
+        "All non-held dice animate in parallel — same start and end time",
+        "Animation is implemented using Textual's set_interval (store handle as self._anim_timer, cancel with .stop()) — no time.sleep",
+        "During animation the Roll (R) key is disabled; Left/Right navigation, Space to hold, Tab, and N for new game remain active",
+        "The scorecard Enter (commit) binding is also disabled during animation",
+        "After animation completes, refresh_scores() is called and all bindings are restored",
+        "If US-013 is implemented, the Yahtzee celebration modal is pushed after animation completes (not before)",
+        "An _animating: bool flag on the App is checked at the top of action_roll() and on_category_row_commit_request() to enforce the disabled window",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Quit confirmation dialog",
+      "description": "As a player, I want to see a confirmation dialog when I press Q or Ctrl+C so that I cannot accidentally quit mid-game.",
+      "acceptanceCriteria": [
+        "Create yahtzee/quit_confirm_screen.py with QuitConfirmScreen(ModalScreen)",
+        "The dialog displays the prompt 'Quit Yahtzee?' and two options: 'Yes — quit' and 'No — keep playing'",
+        "One option is highlighted at a time (focus styling consistent with existing theme); focus starts on 'No'",
+        "Up/Down arrow keys move focus between the two options",
+        "Pressing Enter on the focused option confirms the selection",
+        "If Yes is selected: the dialog dismisses with True and the app calls self.exit() in the callback",
+        "If No is selected (or Escape is pressed): the dialog dismisses with False and the app resumes with no state change",
+        "Add ('q', 'quit_confirm', 'Quit') to App.BINDINGS; action_quit_confirm() pushes QuitConfirmScreen",
+        "Override App.action_quit() to push QuitConfirmScreen instead of exiting directly, intercepting Ctrl+C",
+        "_handle_quit_confirm(result: bool) calls self.exit() if result is True, does nothing otherwise",
+        "While the dialog is visible, all underlying game bindings are blocked (ModalScreen handles this automatically)",
+        "The dialog uses inline CSS on the screen class for layout — dark background, centered dialog, consistent with existing modal style",
+        "Verify visually by running the app in a terminal",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
     }
   ]
 }

@@ -1,3 +1,22 @@
+## 2026-02-26 - US-013
+- Created `yahtzee/yahtzee_celebration_screen.py` with `YahtzeeCelebrationScreen(ModalScreen)`:
+  - 5-line ASCII art for YAHTZEE! using standard characters, 50 chars wide
+  - `BINDINGS = [("enter", "continue_game", ""), ("space", "continue_game", "")]`
+  - `action_continue_game()` calls `self.dismiss()` — no result passed since no callback needed
+  - Inline `CSS` on the class: `align: center middle` on screen, `width: 62`, gold double-border `#f7c948`, `background: #16213e`, `padding: 2 4`
+  - `#celebration-art` styled with gold bold text; `#celebration-hint` styled in muted grey
+- Updated `yahtzee/app.py`:
+  - Added `import scoring` at top
+  - Imported `YahtzeeCelebrationScreen`
+  - `action_roll()`: after updating dice/sub_title/refresh_scores, checks `scoring.yahtzee(self.game.dice) == 50`; if True, `self.push_screen(YahtzeeCelebrationScreen())` (no callback — game state unchanged on dismiss)
+- Files changed: `yahtzee/yahtzee_celebration_screen.py` (new), `yahtzee/app.py`, `prd.json` (US-013 passes: true)
+- **Learnings for future iterations:**
+  - `push_screen(screen)` without a callback is sufficient when dismissal requires no state change — callback is only needed when the modal's result should trigger app-level logic
+  - `scoring.yahtzee(game.dice) == 50` is the clean check (returns 50 for Yahtzee, 0 otherwise) — no need for a separate boolean flag
+  - `ModalScreen` with BINDINGS for both "enter" and "space" pointing to the same action is the standard pattern for "press any of these to continue" UX
+  - Game state is fully preserved during modal display (ModalScreen doesn't interact with GameState) — the check for Yahtzee should happen after `game.roll()` but before any further state mutation
+---
+
 ## 2026-02-26 - US-012
 - Created `yahtzee/confirm_new_game_screen.py` with `ConfirmNewGameScreen(ModalScreen)`:
   - No BINDINGS — uses `on_key()` to catch all keys: dismisses with True for 'y', False for any other key
