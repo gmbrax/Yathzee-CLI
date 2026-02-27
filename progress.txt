@@ -31,3 +31,15 @@
   - Import scores module as `from yahtzee.scores import get_top_10` (package-relative)
   - Modal width 52 fits the 4-column table comfortably; dialog uses `height: auto`
 ---
+
+## 2026-02-27 - US-003
+- Created `yahtzee/name_entry_screen.py` with `NameEntryScreen(ModalScreen)`
+- Modal shows title 'Game Over — Enter your name' and a Textual `Input` widget (max_length=20)
+- `on_input_submitted` handler strips whitespace and defaults to 'Anonymous' if empty, then calls `dismiss(name)`
+- `on_mount` focuses the Input widget so player can type immediately
+- Dark theme: #16213e background, #f0883e accent border, #8b949e hint text
+- **Learnings for future iterations:**
+  - Textual `Input.Submitted` event fires when Enter is pressed; access value via `event.value`
+  - `Input` widget imported from `textual.widgets`; `placeholder` and `max_length` are constructor params
+  - `on_input_submitted(self, event: Input.Submitted)` is the correct handler signature
+---
