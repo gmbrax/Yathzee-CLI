@@ -1,5 +1,7 @@
 import json
+import os
 import sys
+import tempfile
 from datetime import date
 from pathlib import Path
 
@@ -42,7 +44,20 @@ def save_score(name: str, score: int) -> None:
     scores = load_scores()
     scores.append({"name": name, "score": score, "date": date.today().strftime("%Y-%m-%d")})
     SCORES_FILE.parent.mkdir(parents=True, exist_ok=True)
-    SCORES_FILE.write_text(json.dumps({"scores": scores}, indent=2), encoding="utf-8")
+    payload = json.dumps({"scores": scores}, indent=2)
+    fd, tmp_path = tempfile.mkstemp(dir=SCORES_FILE.parent, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(payload)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, SCORES_FILE)
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
 
 
 def get_top_10() -> list[dict]:
