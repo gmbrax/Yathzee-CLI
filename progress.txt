@@ -17,3 +17,17 @@
   - No typecheck tool (pyright/mypy not installed); "typecheck passes" means no syntax/import errors at runtime
   - Quality check command: `pytest test_scoring.py test_game.py -v`
 ---
+
+## 2026-02-27 - US-002
+- Created `yahtzee/scoreboard_screen.py` with `ScoreboardScreen(ModalScreen)`
+- Accepts `mode='postgame'` or `mode='peek'` parameter
+- Builds an ASCII box-drawing table (┌─┬─┐ style) via `_build_table()` helper
+- Shows "No scores yet!" when `get_top_10()` returns empty list
+- In 'peek' mode: `on_key` catches all key events and dismisses with None
+- In 'postgame' mode: Enter/N → dismiss('new_game'), Q → dismiss('quit')
+- Dark theme: #16213e background, #f0883e accent border, #8b949e hint text
+- **Learnings for future iterations:**
+  - `on_key` override with `(self, event)` needs `# type: ignore[override]` to silence type warnings; works cleanly at runtime
+  - Import scores module as `from yahtzee.scores import get_top_10` (package-relative)
+  - Modal width 52 fits the 4-column table comfortably; dialog uses `height: auto`
+---
