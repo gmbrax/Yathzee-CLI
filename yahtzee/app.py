@@ -2,10 +2,12 @@ from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
 from textual.containers import Horizontal, Vertical
 
+import scoring
 from yahtzee.confirm_new_game_screen import ConfirmNewGameScreen
 from yahtzee.die_widget import DieWidget
 from yahtzee.game_over_screen import GameOverScreen
 from yahtzee.scorecard_widget import CategoryRow, ScorecardWidget
+from yahtzee.yahtzee_celebration_screen import YahtzeeCelebrationScreen
 from game import GameState
 
 
@@ -40,6 +42,8 @@ class YahtzeeApp(App):
             self.query_one(f"#die-{i}", DieWidget).value = self.game.dice[i]
         self.sub_title = f"Roll {self.game.roll_count}/3"
         self.query_one(ScorecardWidget).refresh_scores(self.game)
+        if scoring.yahtzee(self.game.dice) == 50:
+            self.push_screen(YahtzeeCelebrationScreen())
 
     def on_die_widget_toggle_hold_request(
         self, event: DieWidget.ToggleHoldRequest
