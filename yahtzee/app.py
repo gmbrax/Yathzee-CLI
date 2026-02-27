@@ -2,6 +2,7 @@ from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
 from textual.containers import Horizontal, Vertical
 
+from yahtzee.confirm_new_game_screen import ConfirmNewGameScreen
 from yahtzee.die_widget import DieWidget
 from yahtzee.game_over_screen import GameOverScreen
 from yahtzee.scorecard_widget import CategoryRow, ScorecardWidget
@@ -14,6 +15,7 @@ class YahtzeeApp(App):
     SUB_TITLE = "Roll 0/3"
     BINDINGS = [
         ("r", "roll", "Roll"),
+        ("n", "new_game", "New Game"),
         ("q", "quit", "Quit"),
     ]
 
@@ -66,6 +68,17 @@ class YahtzeeApp(App):
             )
         else:
             self.query_one("#die-0").focus()
+
+    def action_new_game(self) -> None:
+        any_committed = any(v is not None for v in self.game.scores.values())
+        if any_committed and not self.game.is_game_over:
+            self.push_screen(ConfirmNewGameScreen(), self._handle_confirm_new_game)
+        else:
+            self._reset_game()
+
+    def _handle_confirm_new_game(self, result: bool | None) -> None:
+        if result:
+            self._reset_game()
 
     def _handle_game_over(self, result: bool | None) -> None:
         if result:

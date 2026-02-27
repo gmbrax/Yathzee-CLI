@@ -1,3 +1,22 @@
+## 2026-02-26 - US-012
+- Created `yahtzee/confirm_new_game_screen.py` with `ConfirmNewGameScreen(ModalScreen)`:
+  - No BINDINGS — uses `on_key()` to catch all keys: dismisses with True for 'y', False for any other key
+  - `compose()`: yields a centered `Vertical#confirm-dialog` with title and hint text
+- Updated `yahtzee/app.py`:
+  - Imported `ConfirmNewGameScreen`
+  - Added `("n", "new_game", "New Game")` to `BINDINGS`
+  - Added `action_new_game()`: checks `any(v is not None for v in self.game.scores.values()) and not self.game.is_game_over`; if mid-game → push `ConfirmNewGameScreen` with `_handle_confirm_new_game` callback; otherwise → `_reset_game()` directly
+  - Added `_handle_confirm_new_game(result)`: calls `_reset_game()` if result is True
+- Fixed `yahtzee/scorecard_widget.py`:
+  - Changed `else: row.update_preview(None)` → `else: row.update_score(None)` in `refresh_scores()`; `update_preview(None)` didn't remove `.committed` CSS class, causing committed rows to remain visually stuck after `_reset_game()` was called
+- Files changed: `yahtzee/confirm_new_game_screen.py` (new), `yahtzee/app.py`, `yahtzee/scorecard_widget.py`, `prd.json` (US-012 passes: true)
+- **Learnings for future iterations:**
+  - `on_key()` on a `ModalScreen` catches ALL key presses, including those not listed in BINDINGS — ideal for "any key to cancel" UX
+  - `refresh_scores()` must call `update_score(None)` (not `update_preview(None)`) when roll_count == 0 — only `update_score()` removes the `.committed` CSS class and re-enables `can_focus`
+  - When `GameOverScreen` is pushed as modal, the App-level N binding is automatically blocked — so `action_new_game()` in the App will never fire while the game-over overlay is visible; the N binding in `GameOverScreen` handles that case independently
+  - `any(v is not None for v in game.scores.values())` is the clean check for "at least one category committed"
+---
+
 ## 2026-02-26 - US-011
 - Created `yahtzee/game_over_screen.py` with `GameOverScreen(ModalScreen)`:
   - `BINDINGS = [("n", "new_game", "New Game")]`

@@ -225,8 +225,8 @@
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Added ConfirmNewGameScreen(ModalScreen) for mid-game confirmation; N binding on App calls action_new_game() which checks if any category committed (but game not over) before showing confirm dialog; fixed refresh_scores() to call update_score(None) instead of update_preview(None) in the roll_count==0 branch so .committed class is properly cleared on reset."
     }
   ]
 }

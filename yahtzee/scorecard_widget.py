@@ -136,7 +136,7 @@ class ScorecardWidget(VerticalScroll):
             elif game.roll_count >= 1:
                 row.update_preview(SCORING_FUNCTIONS[key](game.dice))
             else:
-                row.update_preview(None)
+                row.update_score(None)
 
         subtotal = game.upper_subtotal
         self.query_one("#subtotal-row", Static).update(f"Subtotal: {subtotal} / 63")
