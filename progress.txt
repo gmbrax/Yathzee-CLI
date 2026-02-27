@@ -58,3 +58,30 @@
   - Use `height: 1fr` on the scroll container and `height: auto` on the hint bar to fill remaining space
   - For key names in `on_key`: use `"escape"` and `"question_mark"` (not `"?"`)
 ---
+
+## 2026-02-27 - US-005
+- Created `yahtzee/about_screen.py` with `AboutScreen(ModalScreen)`
+- AUTHOR constant set to "Gustavo Henrique Santos Souza de Miranda" (from git config user.name)
+- Version fallback chain: importlib.metadata → tomllib (stdlib, Python 3.11+) → '0.1.0-dev'
+- Dialog: 50 cols wide, height auto, double border in #79c0ff (blue), #16213e background
+- Content: title (bold #79c0ff), version, author, python version, textual version, description, hint
+- Escape/Enter/Space dismiss via on_key handler; CSS is inline
+- All 55 existing tests pass
+- Files changed: `yahtzee/about_screen.py` (new)
+- **Learnings for future iterations:**
+  - `border: double #color` gives double-line border in Textual CSS; `border: round #color` is the rounded single-line variant
+  - For height: auto modal dialogs, `Vertical` container works well; no need for explicit height CSS
+  - `sys.version_info` gives major/minor/micro for Python version display
+  - `importlib.metadata.version('textual')` reliably returns Textual version since it's an installed package
+---
+
+## 2026-02-27 - US-006
+- Added `from yahtzee.about_screen import AboutScreen` to `yahtzee/app.py`
+- Added `("a", "show_about", "About")` to BINDINGS in YahtzeeApp
+- Added `action_show_about()` with guard `if len(self.screen_stack) == 1`
+- Confirmed 'a' is not used by any existing binding (r, n, q, ?)
+- All 55 existing tests continue to pass
+- Files changed: `yahtzee/app.py` (modified)
+- **Learnings for future iterations:**
+  - Adding a new modal follows exact same pattern as action_show_rules; import + BINDINGS entry + action method with guard
+---
