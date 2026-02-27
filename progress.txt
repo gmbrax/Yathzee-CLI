@@ -1,3 +1,20 @@
+## 2026-02-26 - US-014
+- Updated `yahtzee/app.py`:
+  - Added `import random` at top
+  - Added `_animating: bool`, `_anim_timer`, `_anim_frame_count`, `_anim_held`, `_anim_final` initialized in `on_mount()`
+  - `action_roll()`: guards `_animating` and `roll_count >= 3` early returns; after `game.roll()` and `sub_title` update, sets `_animating = True`, snapshots `held` and `dice`, starts `set_interval(0.04, _on_animation_frame)`
+  - `_on_animation_frame()`: frames 1-7 → random values for non-held dice; frame 8 → stop timer, snap all dice to final values, set `_animating = False`, call `refresh_scores()`, check for Yahtzee celebration
+  - `on_category_row_commit_request()`: added `_animating` early return guard
+  - `_reset_game()`: stops `_anim_timer` and clears `_animating` if animation is running
+- Files changed: `yahtzee/app.py`, `prd.json` (US-014 passes: true)
+- **Learnings for future iterations:**
+  - `self.set_interval(interval_seconds, callback)` returns a `Timer` handle; call `.stop()` from within the callback to end the interval cleanly
+  - Snapshot `game.held` and `game.dice` into `_anim_held`/`_anim_final` immediately after `game.roll()` — the snapshots are stable for the entire animation even if the user toggles hold during the animation
+  - Add `_animating` guard at the top of `action_roll()` (prevents re-entry) AND `on_category_row_commit_request()` (prevents commits during animation)
+  - `_reset_game()` must stop the animation timer if running — otherwise the timer will fire after reset and corrupt the freshly cleared dice display
+  - `game.roll()` is a no-op when `roll_count >= 3` — guard explicitly in `action_roll()` to prevent starting an animation for a non-roll
+---
+
 ## 2026-02-26 - US-013
 - Created `yahtzee/yahtzee_celebration_screen.py` with `YahtzeeCelebrationScreen(ModalScreen)`:
   - 5-line ASCII art for YAHTZEE! using standard characters, 50 chars wide

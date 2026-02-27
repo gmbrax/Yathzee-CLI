@@ -269,8 +269,8 @@
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Added _animating bool flag and set_interval animation to action_roll(); 8 frames at 40ms each; frames 1-7 show random values for non-held dice; frame 8 snaps to final values and stops timer; _animating checked at top of action_roll() and on_category_row_commit_request(); _reset_game() stops animation if running."
     },
     {
       "id": "US-015",
