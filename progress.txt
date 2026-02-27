@@ -75,3 +75,15 @@
   - `pyproject.toml` uses `[project.scripts]` (not `[tool.poetry.scripts]`) for the standard entry point declaration
   - `python -m yahtzee` still works because `__main__.py` is present in the package
 ---
+
+## 2026-02-27 - US-007
+- Created `Makefile` at project root with `build`, `build-linux`, `build-macos`, and `clean` targets
+- `build` detects OS via `uname` and delegates to `build-linux` or `build-macos`
+- Both platform targets run identical Nuitka flags: `--onefile --output-filename=yahtzee --enable-plugin=no-qt --include-data-dir=yahtzee:yahtzee yahtzee/__main__.py`
+- `clean` removes `yahtzee`, `yahtzee.bin`, `yahtzee.build/`, `yahtzee.dist/`, `yahtzee.onefile-build/`
+- `.PHONY` declared for all four targets
+- **Learnings for future iterations:**
+  - Makefile variable expansion: use `$(MAKE)` (not `make`) to recurse into sub-targets for proper flag inheritance
+  - Shell variable expansion in Makefile requires `$$VAR` (double dollar) to escape Make's own variable expansion
+  - Shared Nuitka flags extracted into a `NUITKA_FLAGS` variable to keep build-linux and build-macos DRY
+---
