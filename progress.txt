@@ -18,3 +18,15 @@
   - Python venv is 3.14.2, not 3.10 as memory notes suggested
   - `yahtzee.egg-info/` created after install; add to .gitignore eventually
 ---
+
+## 2026-02-27 - US-002
+- Created `yahtzee/assets/` directory and `yahtzee/assets/rules.md` with full Yahtzee rules
+- Sections included: Objective, Turn Flow, Upper Section (with Bonus), Lower Section (all 7 categories), Scoring a Zero
+- File is well-formed Markdown with headings, lists, and bold point values — no HTML tags
+- Verified loadable by `textual.widgets.Markdown` (imported and read without errors)
+- All 55 existing tests continue to pass
+- Files changed: `yahtzee/assets/rules.md` (new)
+- **Learnings for future iterations:**
+  - Assets live at `yahtzee/assets/` — use `Path(__file__).parent / 'assets' / 'filename'` to load from screen modules
+  - Textual's Markdown widget loads raw markdown text via `.update(content)` or constructor; verify by reading the file in Python
+---
