@@ -8,6 +8,7 @@ import scoring
 from yahtzee.confirm_new_game_screen import ConfirmNewGameScreen
 from yahtzee.die_widget import DieWidget
 from yahtzee.game_over_screen import GameOverScreen
+from yahtzee.quit_confirm_screen import QuitConfirmScreen
 from yahtzee.scorecard_widget import CategoryRow, ScorecardWidget
 from yahtzee.yahtzee_celebration_screen import YahtzeeCelebrationScreen
 from game import GameState
@@ -20,7 +21,7 @@ class YahtzeeApp(App):
     BINDINGS = [
         ("r", "roll", "Roll"),
         ("n", "new_game", "New Game"),
-        ("q", "quit", "Quit"),
+        ("q", "quit_confirm", "Quit"),
     ]
 
     def on_mount(self) -> None:
@@ -115,6 +116,16 @@ class YahtzeeApp(App):
     def _handle_game_over(self, result: bool | None) -> None:
         if result:
             self._reset_game()
+
+    def action_quit_confirm(self) -> None:
+        self.push_screen(QuitConfirmScreen(), self._handle_quit_confirm)
+
+    def action_quit(self) -> None:
+        self.push_screen(QuitConfirmScreen(), self._handle_quit_confirm)
+
+    def _handle_quit_confirm(self, result: bool | None) -> None:
+        if result:
+            self.exit()
 
     def _reset_game(self) -> None:
         if self._animating:
