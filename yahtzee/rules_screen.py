@@ -44,4 +44,5 @@ class RulesScreen(ModalScreen):
 
     def on_key(self, event: Key) -> None:
         if event.key in ("escape", "question_mark"):
+            event.stop()
             self.dismiss()
