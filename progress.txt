@@ -30,3 +30,20 @@
   - Assets live at `yahtzee/assets/` — use `Path(__file__).parent / 'assets' / 'filename'` to load from screen modules
   - Textual's Markdown widget loads raw markdown text via `.update(content)` or constructor; verify by reading the file in Python
 ---
+
+## 2026-02-27 - US-003
+- Created `yahtzee/rules_screen.py` with `RulesScreen(ModalScreen)`
+- Used `VerticalScroll` wrapping `Markdown` widget for scrollable content
+- Loads `yahtzee/assets/rules.md` at compose time via `Path(__file__).parent / 'assets' / 'rules.md'`
+- Dialog is 80% wide × 90% tall, centered, with round green (#3fb950) border and #16213e background
+- Hint line at bottom: `  ↑/↓ scroll  ·  Esc or ? close  ` in #8b949e
+- Both Escape and question_mark keys dismiss via `on_key` handler
+- CSS is inline on the class — no separate .tcss file
+- All 55 existing tests continue to pass
+- Files changed: `yahtzee/rules_screen.py` (new)
+- **Learnings for future iterations:**
+  - Modal screen pattern: `align: center middle` on the screen class, then a single container div with explicit width/height and border
+  - `VerticalScroll` is available in Textual 8.0.0 (no need for `ScrollableContainer`)
+  - Use `height: 1fr` on the scroll container and `height: auto` on the hint bar to fill remaining space
+  - For key names in `on_key`: use `"escape"` and `"question_mark"` (not `"?"`)
+---
