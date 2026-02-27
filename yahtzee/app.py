@@ -1,3 +1,5 @@
+import random
+
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
 from textual.containers import Horizontal, Vertical
@@ -23,6 +25,11 @@ class YahtzeeApp(App):
 
     def on_mount(self) -> None:
         self.game = GameState()
+        self._animating: bool = False
+        self._anim_timer = None
+        self._anim_frame_count: int = 0
+        self._anim_held: list[bool] = []
+        self._anim_final: list[int] = []
         self.query_one(ScorecardWidget).refresh_scores(self.game)
 
     def compose(self) -> ComposeResult:
@@ -37,13 +44,32 @@ class YahtzeeApp(App):
         yield Footer()
 
     def action_roll(self) -> None:
+        if self._animating:
+            return
+        if self.game.roll_count >= 3:
+            return
         self.game.roll()
-        for i in range(5):
-            self.query_one(f"#die-{i}", DieWidget).value = self.game.dice[i]
         self.sub_title = f"Roll {self.game.roll_count}/3"
-        self.query_one(ScorecardWidget).refresh_scores(self.game)
-        if scoring.yahtzee(self.game.dice) == 50:
-            self.push_screen(YahtzeeCelebrationScreen())
+        self._animating = True
+        self._anim_frame_count = 0
+        self._anim_held = list(self.game.held)
+        self._anim_final = list(self.game.dice)
+        self._anim_timer = self.set_interval(0.04, self._on_animation_frame)
+
+    def _on_animation_frame(self) -> None:
+        self._anim_frame_count += 1
+        if self._anim_frame_count < 8:
+            for i in range(5):
+                if not self._anim_held[i]:
+                    self.query_one(f"#die-{i}", DieWidget).value = random.randint(1, 6)
+        else:
+            self._anim_timer.stop()
+            for i in range(5):
+                self.query_one(f"#die-{i}", DieWidget).value = self._anim_final[i]
+            self._animating = False
+            self.query_one(ScorecardWidget).refresh_scores(self.game)
+            if scoring.yahtzee(self.game.dice) == 50:
+                self.push_screen(YahtzeeCelebrationScreen())
 
     def on_die_widget_toggle_hold_request(
         self, event: DieWidget.ToggleHoldRequest
@@ -56,6 +82,8 @@ class YahtzeeApp(App):
     def on_category_row_commit_request(
         self, event: CategoryRow.CommitRequest
     ) -> None:
+        if self._animating:
+            return
         if self.game.roll_count < 1:
             return
         self.game.commit(event.key)
@@ -89,6 +117,9 @@ class YahtzeeApp(App):
             self._reset_game()
 
     def _reset_game(self) -> None:
+        if self._animating:
+            self._anim_timer.stop()
+            self._animating = False
         self.game.reset()
         for i in range(5):
             die = self.query_one(f"#die-{i}", DieWidget)
