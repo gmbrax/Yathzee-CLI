@@ -104,13 +104,11 @@ CategoryRow.committed {
 
 .row-label {
     width: 1fr;
-    color: inherit;
 }
 
 .row-score {
     width: 4;
     text-align: right;
-    color: inherit;
 }
 
 .totals-row {
