@@ -24,6 +24,7 @@ class YahtzeeApp(App):
     BINDINGS = [
         ("r", "roll", "Roll"),
         ("n", "new_game", "New Game"),
+        ("s", "show_scoreboard", "Scores"),
         ("q", "quit_confirm", "Quit"),
     ]
 
@@ -129,6 +130,9 @@ class YahtzeeApp(App):
             self._reset_game()
         elif result == "quit":
             self.exit()
+
+    def action_show_scoreboard(self) -> None:
+        self.push_screen(ScoreboardScreen(mode="peek"))
 
     def action_quit_confirm(self) -> None:
         self.push_screen(QuitConfirmScreen(), self._handle_quit_confirm)
