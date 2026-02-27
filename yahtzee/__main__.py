@@ -1,4 +1,9 @@
 from yahtzee.app import YahtzeeApp
 
-app = YahtzeeApp()
-app.run()
+
+def run() -> None:
+    YahtzeeApp().run()
+
+
+if __name__ == "__main__":
+    run()

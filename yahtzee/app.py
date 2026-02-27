@@ -8,12 +8,15 @@ import scoring
 from yahtzee.confirm_new_game_screen import ConfirmNewGameScreen
 from yahtzee.die_widget import DieWidget
 from yahtzee.game_over_screen import GameOverScreen
+from yahtzee.name_entry_screen import NameEntryScreen
 from yahtzee.quit_confirm_screen import QuitConfirmScreen
 from yahtzee.about_screen import AboutScreen
 from yahtzee.rules_screen import RulesScreen
 from yahtzee.scorecard_widget import CategoryRow, ScorecardWidget
+from yahtzee.scoreboard_screen import ScoreboardScreen
 from yahtzee.yahtzee_celebration_screen import YahtzeeCelebrationScreen
 from game import GameState
+from yahtzee.scores import save_score
 
 
 class YahtzeeApp(App):
@@ -23,6 +26,7 @@ class YahtzeeApp(App):
     BINDINGS = [
         ("r", "roll", "Roll"),
         ("n", "new_game", "New Game"),
+        ("s", "show_scoreboard", "Scores"),
         ("q", "quit_confirm", "Quit"),
         ("question_mark", "show_rules", "Rules"),
         ("a", "show_about", "About"),
@@ -119,10 +123,20 @@ class YahtzeeApp(App):
             self._reset_game()
 
     def _handle_game_over(self, result: str | None) -> None:
+        self.push_screen(NameEntryScreen(), self._handle_name_entry)
+
+    def _handle_name_entry(self, name: str | None) -> None:
+        save_score(name or "Anonymous", self.game.grand_total)
+        self.push_screen(ScoreboardScreen(mode="postgame"), self._handle_scoreboard)
+
+    def _handle_scoreboard(self, result: str | None) -> None:
         if result == "new_game":
             self._reset_game()
         elif result == "quit":
             self.exit()
+
+    def action_show_scoreboard(self) -> None:
+        self.push_screen(ScoreboardScreen(mode="peek"))
 
     def action_quit_confirm(self) -> None:
         self.push_screen(QuitConfirmScreen(), self._handle_quit_confirm)

@@ -1,87 +1,89 @@
-## ralph/rules-and-about
+## Progress Log — ralph/scoreboard-and-build
 
 ## Codebase Patterns
-- Python version is 3.14.2 (not 3.10.6 as earlier memory noted) — venv uses python3.14
-- Build backend: use `setuptools.build_meta` (NOT `setuptools.backends.legacy:build` which doesn't exist)
-- Run tests with: `.venv/bin/pytest test_scoring.py -v` (pytest.ini may set rootdir to /home/gustavohssm)
-- `yahtzee.egg-info/` is created by `pip install -e .` — don't commit it
-- Package `yahtzee` is installed in editable mode with `pip install -e .`
+- Project uses `yahtzee/` package for all UI/game components; root-level `.py` files are standalone modules (scoring.py, game.py)
+- Textual app is in `yahtzee/app.py`; each modal screen is in its own file under `yahtzee/`
+- Tests live at root level: `test_scoring.py`, `test_game.py`
+- Run tests: `pytest test_scoring.py test_game.py -v`
 
 ## 2026-02-27 - US-001
-- Created `pyproject.toml` with `[project]` (name=yahtzee, version=0.1.0) and `[build-system]` (setuptools.build_meta)
-- Ran `pip install -e .` to install the package in editable mode
-- Verified `importlib.metadata.version('yahtzee')` returns `0.1.0`
-- All 55 existing tests pass
-- Files changed: `pyproject.toml` (new)
+- Created `yahtzee/scores.py` with `load_scores()`, `save_score(name, score)`, `get_top_10()`
+- Scores stored at `~/.local/share/yahtzee/scores.json` as `{"scores": [...]}`
+- All stdlib only: `json`, `pathlib`, `datetime`, `sys`
+- `load_scores()` returns `[]` on missing file or malformed JSON (prints warning to stderr)
+- `save_score()` creates dirs with `mkdir(parents=True, exist_ok=True)`
 - **Learnings for future iterations:**
-  - `setuptools.backends.legacy:build` does NOT exist — use `setuptools.build_meta`
-  - Python venv is 3.14.2, not 3.10 as memory notes suggested
-  - `yahtzee.egg-info/` created after install; add to .gitignore eventually
+  - The `yahtzee/` package imports `scoring` (root-level module) directly — not `yahtzee.scoring`
+  - No typecheck tool (pyright/mypy not installed); "typecheck passes" means no syntax/import errors at runtime
+  - Quality check command: `pytest test_scoring.py test_game.py -v`
 ---
 
 ## 2026-02-27 - US-002
-- Created `yahtzee/assets/` directory and `yahtzee/assets/rules.md` with full Yahtzee rules
-- Sections included: Objective, Turn Flow, Upper Section (with Bonus), Lower Section (all 7 categories), Scoring a Zero
-- File is well-formed Markdown with headings, lists, and bold point values — no HTML tags
-- Verified loadable by `textual.widgets.Markdown` (imported and read without errors)
-- All 55 existing tests continue to pass
-- Files changed: `yahtzee/assets/rules.md` (new)
+- Created `yahtzee/scoreboard_screen.py` with `ScoreboardScreen(ModalScreen)`
+- Accepts `mode='postgame'` or `mode='peek'` parameter
+- Builds an ASCII box-drawing table (┌─┬─┐ style) via `_build_table()` helper
+- Shows "No scores yet!" when `get_top_10()` returns empty list
+- In 'peek' mode: `on_key` catches all key events and dismisses with None
+- In 'postgame' mode: Enter/N → dismiss('new_game'), Q → dismiss('quit')
+- Dark theme: #16213e background, #f0883e accent border, #8b949e hint text
 - **Learnings for future iterations:**
-  - Assets live at `yahtzee/assets/` — use `Path(__file__).parent / 'assets' / 'filename'` to load from screen modules
-  - Textual's Markdown widget loads raw markdown text via `.update(content)` or constructor; verify by reading the file in Python
----
-
-## 2026-02-27 - US-004
-- Added `from yahtzee.rules_screen import RulesScreen` to `yahtzee/app.py`
-- Added `("question_mark", "show_rules", "Rules")` to `BINDINGS` in `YahtzeeApp`
-- Added `action_show_rules()` with guard `if len(self.screen_stack) == 1`
-- All 55 existing tests continue to pass
-- Files changed: `yahtzee/app.py` (modified)
-- **Learnings for future iterations:**
-  - Textual binding key name for `?` is `"question_mark"` (not `"?"`); same pattern applies to other special chars
-  - Guard pattern `if len(self.screen_stack) == 1` prevents double-pushing modals; screen_stack[0] is always the base screen
+  - `on_key` override with `(self, event)` needs `# type: ignore[override]` to silence type warnings; works cleanly at runtime
+  - Import scores module as `from yahtzee.scores import get_top_10` (package-relative)
+  - Modal width 52 fits the 4-column table comfortably; dialog uses `height: auto`
 ---
 
 ## 2026-02-27 - US-003
-- Created `yahtzee/rules_screen.py` with `RulesScreen(ModalScreen)`
-- Used `VerticalScroll` wrapping `Markdown` widget for scrollable content
-- Loads `yahtzee/assets/rules.md` at compose time via `Path(__file__).parent / 'assets' / 'rules.md'`
-- Dialog is 80% wide × 90% tall, centered, with round green (#3fb950) border and #16213e background
-- Hint line at bottom: `  ↑/↓ scroll  ·  Esc or ? close  ` in #8b949e
-- Both Escape and question_mark keys dismiss via `on_key` handler
-- CSS is inline on the class — no separate .tcss file
-- All 55 existing tests continue to pass
-- Files changed: `yahtzee/rules_screen.py` (new)
+- Created `yahtzee/name_entry_screen.py` with `NameEntryScreen(ModalScreen)`
+- Modal shows title 'Game Over — Enter your name' and a Textual `Input` widget (max_length=20)
+- `on_input_submitted` handler strips whitespace and defaults to 'Anonymous' if empty, then calls `dismiss(name)`
+- `on_mount` focuses the Input widget so player can type immediately
+- Dark theme: #16213e background, #f0883e accent border, #8b949e hint text
 - **Learnings for future iterations:**
-  - Modal screen pattern: `align: center middle` on the screen class, then a single container div with explicit width/height and border
-  - `VerticalScroll` is available in Textual 8.0.0 (no need for `ScrollableContainer`)
-  - Use `height: 1fr` on the scroll container and `height: auto` on the hint bar to fill remaining space
-  - For key names in `on_key`: use `"escape"` and `"question_mark"` (not `"?"`)
+  - Textual `Input.Submitted` event fires when Enter is pressed; access value via `event.value`
+  - `Input` widget imported from `textual.widgets`; `placeholder` and `max_length` are constructor params
+  - `on_input_submitted(self, event: Input.Submitted)` is the correct handler signature
+---
+
+## 2026-02-27 - US-004
+- Modified `yahtzee/app.py` to wire GameOverScreen → NameEntryScreen → ScoreboardScreen
+- Added imports: `NameEntryScreen`, `ScoreboardScreen`, `save_score`
+- `_handle_game_over` now pushes `NameEntryScreen` (ignores GameOverScreen result — decision deferred to scoreboard)
+- `_handle_name_entry` calls `save_score(name, self.game.grand_total)` then pushes `ScoreboardScreen(mode='postgame')`
+- `_handle_scoreboard` handles 'new_game' → `_reset_game()` and 'quit' → `self.exit()`
+- **Learnings for future iterations:**
+  - Textual `push_screen(screen, callback)` chains modals cleanly; each callback receives the dismissed value
+  - The GameOverScreen result is discarded in the new flow — all routing decisions moved to ScoreboardScreen callback
+  - `save_score` accepts `str | None`; guard with `name or "Anonymous"` before calling
 ---
 
 ## 2026-02-27 - US-005
-- Created `yahtzee/about_screen.py` with `AboutScreen(ModalScreen)`
-- AUTHOR constant set to "Gustavo Henrique Santos Souza de Miranda" (from git config user.name)
-- Version fallback chain: importlib.metadata → tomllib (stdlib, Python 3.11+) → '0.1.0-dev'
-- Dialog: 50 cols wide, height auto, double border in #79c0ff (blue), #16213e background
-- Content: title (bold #79c0ff), version, author, python version, textual version, description, hint
-- Escape/Enter/Space dismiss via on_key handler; CSS is inline
-- All 55 existing tests pass
-- Files changed: `yahtzee/about_screen.py` (new)
+- Modified `yahtzee/app.py`: added `('s', 'show_scoreboard', 'Scores')` to `BINDINGS`
+- Added `action_show_scoreboard()` that pushes `ScoreboardScreen(mode='peek')`
+- No changes to `ScoreboardScreen` — 'peek' mode already handles any-key dismiss with `None` (from US-002)
+- S binding appears in Textual footer alongside R, N, Q
 - **Learnings for future iterations:**
-  - `border: double #color` gives double-line border in Textual CSS; `border: round #color` is the rounded single-line variant
-  - For height: auto modal dialogs, `Vertical` container works well; no need for explicit height CSS
-  - `sys.version_info` gives major/minor/micro for Python version display
-  - `importlib.metadata.version('textual')` reliably returns Textual version since it's an installed package
+  - Adding a binding only requires two changes: a tuple in `BINDINGS` and a matching `action_<name>()` method
+  - `ScoreboardScreen(mode='peek')` already returns state unchanged — no callback needed for peek
 ---
 
 ## 2026-02-27 - US-006
-- Added `from yahtzee.about_screen import AboutScreen` to `yahtzee/app.py`
-- Added `("a", "show_about", "About")` to BINDINGS in YahtzeeApp
-- Added `action_show_about()` with guard `if len(self.screen_stack) == 1`
-- Confirmed 'a' is not used by any existing binding (r, n, q, ?)
-- All 55 existing tests continue to pass
-- Files changed: `yahtzee/app.py` (modified)
+- Updated `yahtzee/__main__.py`: added `def run(): YahtzeeApp().run()` and wrapped module-level execution in `if __name__ == "__main__": run()`
+- Created `pyproject.toml` at project root with `[project]` and `[project.scripts]` sections
+- `yahtzee.__main__:run` is the declared entry point for the `yahtzee` console script
 - **Learnings for future iterations:**
-  - Adding a new modal follows exact same pattern as action_show_rules; import + BINDINGS entry + action method with guard
+  - Previous `__main__.py` had bare module-level `app = YahtzeeApp(); app.run()` — no guard; replaced with `run()` + `if __name__ == "__main__":`
+  - `pyproject.toml` uses `[project.scripts]` (not `[tool.poetry.scripts]`) for the standard entry point declaration
+  - `python -m yahtzee` still works because `__main__.py` is present in the package
+---
+
+## 2026-02-27 - US-007
+- Created `Makefile` at project root with `build`, `build-linux`, `build-macos`, and `clean` targets
+- `build` detects OS via `uname` and delegates to `build-linux` or `build-macos`
+- Both platform targets run identical Nuitka flags: `--onefile --output-filename=yahtzee --enable-plugin=no-qt --include-data-dir=yahtzee:yahtzee yahtzee/__main__.py`
+- `clean` removes `yahtzee`, `yahtzee.bin`, `yahtzee.build/`, `yahtzee.dist/`, `yahtzee.onefile-build/`
+- `.PHONY` declared for all four targets
+- **Learnings for future iterations:**
+  - Makefile variable expansion: use `$(MAKE)` (not `make`) to recurse into sub-targets for proper flag inheritance
+  - Shell variable expansion in Makefile requires `$$VAR` (double dollar) to escape Make's own variable expansion
+  - Shared Nuitka flags extracted into a `NUITKA_FLAGS` variable to keep build-linux and build-macos DRY
 ---
