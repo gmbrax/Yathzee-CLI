@@ -113,9 +113,11 @@ class YahtzeeApp(App):
         if result:
             self._reset_game()
 
-    def _handle_game_over(self, result: bool | None) -> None:
-        if result:
+    def _handle_game_over(self, result: str | None) -> None:
+        if result == "new_game":
             self._reset_game()
+        elif result == "quit":
+            self.exit()
 
     def action_quit_confirm(self) -> None:
         self.push_screen(QuitConfirmScreen(), self._handle_quit_confirm)

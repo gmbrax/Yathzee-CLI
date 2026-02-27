@@ -42,7 +42,10 @@ class GameOverScreen(ModalScreen):
     }
     """
 
-    BINDINGS = [("n", "new_game", "New Game")]
+    BINDINGS = [
+        ("n", "new_game", "New Game"),
+        ("q", "quit_game", "Quit"),
+    ]
 
     def __init__(self, grand_total: int, bonus_earned: bool) -> None:
         super().__init__()
@@ -57,7 +60,10 @@ class GameOverScreen(ModalScreen):
             else:
                 yield Static("Bonus not earned", id="game-over-bonus", classes="bonus-missed")
             yield Static(f"Final Score:  {self._grand_total}", id="game-over-score")
-            yield Static("Press N to play again", id="game-over-hint")
+            yield Static("N — New Game  |  Q — Quit", id="game-over-hint")
 
     def action_new_game(self) -> None:
-        self.dismiss(True)
+        self.dismiss("new_game")
+
+    def action_quit_game(self) -> None:
+        self.dismiss("quit")
