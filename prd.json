@@ -207,8 +207,8 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created yahtzee/game_over_screen.py with GameOverScreen(ModalScreen); shows grand_total, bonus status, and 'Press N to play again'; N binding dismisses with True. App.on_category_row_commit_request checks is_game_over after commit and pushes GameOverScreen; _handle_game_over callback calls _reset_game(); while modal is visible, ModalScreen naturally blocks all underlying bindings (R, Enter, Space). All 98 tests still pass."
     },
     {
       "id": "US-012",

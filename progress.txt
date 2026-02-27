@@ -1,3 +1,25 @@
+## 2026-02-26 - US-011
+- Created `yahtzee/game_over_screen.py` with `GameOverScreen(ModalScreen)`:
+  - `BINDINGS = [("n", "new_game", "New Game")]`
+  - `__init__(grand_total, bonus_earned)`: stores totals for display
+  - `compose()`: yields a centered `Vertical#game-over-dialog` with title, bonus status, final score, and hint
+  - `action_new_game()`: calls `self.dismiss(True)` to signal new game to the caller
+  - Inline `CSS` on the class handles dialog positioning (`align: center middle`) and styling
+- Updated `yahtzee/app.py`:
+  - Imported `GameOverScreen`
+  - `on_category_row_commit_request()`: after commit, checks `self.game.is_game_over`; if True, pushes `GameOverScreen` with `_handle_game_over` callback; otherwise focuses `#die-0`
+  - Added `_handle_game_over(result)`: calls `_reset_game()` if result is True
+  - Added `_reset_game()`: resets `GameState`, clears all DieWidgets, resets sub_title, calls `refresh_scores()`, focuses `#die-0`
+- Updated `yahtzee/app.tcss`: added `.bonus-earned` and `.bonus-missed` utility classes
+- Files changed: `yahtzee/game_over_screen.py` (new), `yahtzee/app.py`, `yahtzee/app.tcss`, `prd.json` (US-011 passes: true)
+- **Learnings for future iterations:**
+  - `ModalScreen` from `textual.screen` naturally disables all underlying app/widget bindings while pushed — no manual disabling needed
+  - `push_screen(screen, callback)` pattern: screen calls `self.dismiss(result)`, app callback receives the result — clean decoupling
+  - Inline `CSS` on a `Screen` subclass is fine for modal-specific styles; avoids polluting the main `app.tcss`
+  - `_reset_game()` extracted as a reusable method — US-012 (N key new game) can call it directly
+  - `self.game.bonus > 0` is the correct check for bonus earned (bonus returns 35 or 0)
+---
+
 ## 2026-02-26 - US-010
 - Updated `yahtzee/scorecard_widget.py`:
   - Added `from textual.message import Message` import
