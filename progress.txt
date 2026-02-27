@@ -55,3 +55,13 @@
   - The GameOverScreen result is discarded in the new flow — all routing decisions moved to ScoreboardScreen callback
   - `save_score` accepts `str | None`; guard with `name or "Anonymous"` before calling
 ---
+
+## 2026-02-27 - US-005
+- Modified `yahtzee/app.py`: added `('s', 'show_scoreboard', 'Scores')` to `BINDINGS`
+- Added `action_show_scoreboard()` that pushes `ScoreboardScreen(mode='peek')`
+- No changes to `ScoreboardScreen` — 'peek' mode already handles any-key dismiss with `None` (from US-002)
+- S binding appears in Textual footer alongside R, N, Q
+- **Learnings for future iterations:**
+  - Adding a binding only requires two changes: a tuple in `BINDINGS` and a matching `action_<name>()` method
+  - `ScoreboardScreen(mode='peek')` already returns state unchanged — no callback needed for peek
+---
